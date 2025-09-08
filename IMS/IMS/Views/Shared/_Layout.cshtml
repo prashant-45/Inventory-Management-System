@@ -1,0 +1,157 @@
+﻿@using IMS.Helpers;
+@using Microsoft.AspNetCore.Routing
+
+@functions {
+    string IsActive(string ctrl, string act = "Index")
+    {
+        var routeData = Context.GetRouteData();
+        var currentCtrl = routeData.Values["controller"]?.ToString();
+        var currentAct = routeData.Values["action"]?.ToString();
+        return (currentCtrl == ctrl && currentAct == act) ? "active" : "";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - IMS</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/IMS.styles.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+
+
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">IMS</div>
+            <nav class="nav flex-column">
+                <div class="nav-group">General</div>
+
+                @if (PermissionHelper.HasPermission("ViewDashboard"))
+                {
+                    <a class="nav-link @IsActive("Dashboard")" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                }
+
+                @if (PermissionHelper.HasPermission("AddInventory") || PermissionHelper.HasPermission("UpdateInventory"))
+                {
+                    <a class="nav-link @IsActive("Inventory")" asp-controller="Inventory" asp-action="Index">
+                        <i class="bi bi-box-seam"></i> Inventory
+                    </a>
+                }
+
+                @if (PermissionHelper.HasPermission("CreateOrder") || PermissionHelper.HasPermission("ApproveOrder"))
+                {
+                    <a class="nav-link @IsActive("Sales")" asp-controller="Sales" asp-action="Index">
+                        <i class="bi bi-cart-check"></i> Sales
+                    </a>
+                }
+
+                @if (PermissionHelper.HasPermission("AddDeliveryChallan") || PermissionHelper.HasPermission("ViewDeliveryChallan"))
+                {
+                    <a class="nav-link @IsActive("DeliveryChallan")" asp-controller="DeliveryChallan" asp-action="Index">
+                        <i class="bi bi-truck"></i> Delivery Challan
+                    </a>
+                }
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="nav-link @IsActive("Users")" asp-controller="Users" asp-action="Index">
+                        <i class="bi bi-people"></i> Users
+                    </a>
+                }
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="nav-group">Admin</div>
+
+                    <a class="nav-link @IsActive("Admin", "ManagePermissions")" asp-controller="Admin" asp-action="ManagePermissions">
+                        <i class="bi bi-shield-lock"></i> Manage Permissions
+                    </a>
+
+                    <a class="nav-link @IsActive("Admin", "ManageRoles")" asp-controller="Admin" asp-action="ManageRoles">
+                        <i class="bi bi-diagram-3"></i> Manage Roles
+                    </a>
+                }
+            </nav>
+        </aside>
+        <div class="overlay"></div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="d-flex align-items-center">
+                    <!-- ✅ Sidebar Toggle for Mobile -->
+                    <button class="btn btn-outline-secondary d-lg-none" id="sidebarToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <span>@User.Identity.Name</span>
+                </div>
+
+                <div>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-dark">Logout</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-primary">Login</a>
+                    }
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main role="main">
+                @RenderBody()
+            </main>
+
+            <!-- Footer -->
+            <footer>
+                <div class="container">
+                    &copy; 2025 - <strong>IMS</strong> |
+                    <a asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const sidebar = document.querySelector(".sidebar");
+            const overlay = document.querySelector(".overlay");
+            const toggleBtn = document.getElementById("sidebarToggle");
+
+            toggleBtn.addEventListener("click", function () {
+                sidebar.classList.toggle("show");
+                overlay.classList.toggle("active");
+            });
+
+            overlay.addEventListener("click", function () {
+                sidebar.classList.remove("show");
+                overlay.classList.remove("active");
+            });
+        });
+    </script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

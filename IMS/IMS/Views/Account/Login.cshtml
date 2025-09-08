@@ -1,0 +1,51 @@
+﻿@model IMS.Models.User
+
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Login";
+}
+
+<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+    <div class="card shadow-lg p-4 border-0" style="width: 100%; max-width: 400px; border-radius: 18px; background-color: #fff;">
+
+        <!-- Logo / Title -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-dark">Inventory Login</h2>
+            <p class="text-muted" style="font-size: 14px;">Please login to continue</p>
+        </div>
+
+        <!-- Error Message -->
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger text-center py-2">
+                @ViewBag.Error
+            </div>
+        }
+
+        <!-- Login Form -->
+        <form asp-action="Login" method="post">
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-dark">Username</label>
+                <input asp-for="UserName" class="form-control border-dark rounded-3" placeholder="Enter username" />
+                <span asp-validation-for="UserName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-dark">Password</label>
+                <input asp-for="Password" type="password" class="form-control border-dark rounded-3" placeholder="Enter password" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100 rounded-3 fw-semibold py-2">Login</button>
+        </form>
+
+        <!-- Extra Links -->
+        <div class="mt-3 text-center">
+            <a href="#" class="text-decoration-none text-dark small">Forgot Password?</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

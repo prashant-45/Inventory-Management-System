@@ -1,0 +1,59 @@
+﻿@{
+    Layout = "_Layout";  // use main layout with sidebar + topbar
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Welcome, @User.Identity.Name 👋</h2>
+            <p class="text-muted">Here’s a quick overview of your system.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Example Card -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h5 class="card-title">Inventory</h5>
+                    <p class="card-text">Manage and track stock.</p>
+                    <a asp-controller="Inventory" asp-action="Index" class="btn btn-sm btn-primary">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h5 class="card-title">Sales</h5>
+                    <p class="card-text">View and manage sales records.</p>
+                    <a asp-controller="Sales" asp-action="Index" class="btn btn-sm btn-success">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h5 class="card-title">Users</h5>
+                    <p class="card-text">Manage user accounts.</p>
+                    <a asp-controller="Users" asp-action="Index" class="btn btn-sm btn-dark">Go</a>
+                </div>
+            </div>
+        </div>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Admin</h5>
+                        <p class="card-text">Manage roles and permissions.</p>
+                        <a asp-controller="Admin" asp-action="ManageRoles" class="btn btn-sm btn-warning">Go</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
