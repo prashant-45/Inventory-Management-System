@@ -3,6 +3,8 @@ using IMS.Mappings;
 using IMS.Repositories;
 using IMS.Repositories.Interfaces;
 using IMS.Services;
+using IMS.Services.IMS.Services;
+using IMS.Worker;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +27,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IDeliveryChallanRepository, DeliveryChallanRepository>();
+builder.Services.AddScoped<IChallanPdfService, ChallanPdfService>();
+builder.Services.AddSingleton<IWhatsAppService, WhatsAppService>();
+
+builder.Services.AddHostedService<WhatsAppWorker>();
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

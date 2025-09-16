@@ -11,6 +11,7 @@ namespace IMS.Data
             : base(options)
         {
         }
+        public DbSet<WhatsAppQueue> WhatsappMessageQueue { get; set; }
         public DbSet<DeliveryChallan> DeliveryChallans { get; set; }
         public DbSet<DeliveryChallanItem> DeliveryChallanItems { get; set; }
 

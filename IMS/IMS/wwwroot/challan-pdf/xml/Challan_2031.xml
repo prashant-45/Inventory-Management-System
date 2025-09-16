@@ -1,0 +1,19 @@
+<DeliveryChallan>
+  <Id>2031</Id>
+  <ChallanNo>5655</ChallanNo>
+  <ReceiverName>Prashant Verma</ReceiverName>
+  <ReceiverMobile>916397329072</ReceiverMobile>
+  <Date>2025-09-14T00:00:00</Date>
+  <Items>
+    <Particular>sedysuhj</Particular>
+    <ModelNo>534</ModelNo>
+    <Quantity>11</Quantity>
+    <Remarks>shjkdsdjhdsj</Remarks>
+  </Items>
+  <Items>
+    <Particular>ssdjshjk </Particular>
+    <ModelNo>535</ModelNo>
+    <Quantity>2</Quantity>
+    <Remarks>skjdks</Remarks>
+  </Items>
+</DeliveryChallan>

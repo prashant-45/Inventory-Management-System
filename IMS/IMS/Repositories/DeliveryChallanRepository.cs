@@ -1,6 +1,10 @@
 ﻿using IMS.Data;
 using IMS.Models;
+using IMS.Models.DTO;
 using IMS.Repositories.Interfaces;
+using IMS.Services;
+using IMS.Services.IMS.Services;
+//using IMS.Services.pdf;
 using IMS.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +13,15 @@ namespace IMS.Repositories
     public class DeliveryChallanRepository : IDeliveryChallanRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly IChallanPdfService _challanPdf;
+        private readonly IWhatsAppService _whatsAppService;
 
-        public DeliveryChallanRepository(ApplicationDbContext context)
+
+        public DeliveryChallanRepository(ApplicationDbContext context, IChallanPdfService challanPdf, IWhatsAppService whatsAppService)
         {
             _context = context;
+            _challanPdf = challanPdf;
+            _whatsAppService = whatsAppService;
         }
 
         public async Task<DeliveryChallan> CreateAsync(DeliveryChallanViewModel model)
@@ -30,8 +39,9 @@ namespace IMS.Repositories
                     Items = model.Items.Select(i => new DeliveryChallanItem
                     {
                         Particular = i.Particulars,
+                        ModelNo = i.ModelNo,
                         Quantity = i.Quantity,
-                        Remarks = i.Remarks,    
+                        Remarks = i.Remarks,
                         //Unit = i.UOM
                     }).ToList()
                 };
@@ -39,15 +49,37 @@ namespace IMS.Repositories
                 _context.DeliveryChallans.Add(challan);
                 await _context.SaveChangesAsync();
 
-                //var queueMessage = new WhatsAppQueue
-                //{
-                //    MobileNumber = challan.ReceiverMobile,
-                //    Message = $"Delivery Challan {challan.ChallanNo} created with {challan.Items.Count} items.",
-                //    Status = "PENDING",
-                //    CreatedAt = DateTime.UtcNow
-                //};
 
-                //_context.WhatsAppQueue.Add(queueMessage);
+
+                var challanDto = new DeliveryChallanDto
+                {
+                    Id = challan.Id,
+                    ChallanNo = challan.ChallanNo,
+                    ReceiverName = challan.ReceiverName,
+                    ReceiverMobile = challan.ReceiverMobile,
+                    Date = challan.Date,
+                    Items = challan.Items.Select(i => new DeliveryChallanItemDto
+                    {
+                        Particular = i.Particular,
+                        ModelNo = i.ModelNo,
+                        Quantity = i.Quantity,
+                        Remarks = i.Remarks
+                    }).ToList()
+                };
+                //🔹 Generate PDF here
+                var pdfPath = await _challanPdf.GenerateChallanPdfAsync(challanDto);
+
+
+                var queueMessage = new WhatsAppQueue
+                {
+                    FkChallanId = challan.Id,
+                    MobileNumber = _whatsAppService.FormatPhoneNumber(challan.ReceiverMobile),
+                    Message = $"Hello {challan.ReceiverName}, your Delivery Challan {challan.ChallanNo} has been created.",
+                    Status = "PENDING",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.WhatsappMessageQueue.Add(queueMessage);
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -77,11 +109,30 @@ namespace IMS.Repositories
         }
 
 
-        public async Task<IEnumerable<DeliveryChallanViewModel>> GetAllChallansAsync()
+        public async Task<(IEnumerable<DeliveryChallanViewModel> Challans, int TotalItems)>
+     GetChallansAsync(int page, int pageSize, string searchTerm = "")
         {
-            return await _context.DeliveryChallans
+            var query = _context.DeliveryChallans
                 .Include(c => c.Items)
                 .AsNoTracking()
+                .AsQueryable();
+
+            // 🔍 Search filter
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.Trim();
+                query = query.Where(c =>
+                    c.ChallanNo.Contains(searchTerm) ||
+                    c.ReceiverName.Contains(searchTerm) ||
+                    c.ReceiverMobile.Contains(searchTerm));
+            }
+
+            var totalItems = await query.CountAsync();
+
+            var challans = await query
+                .OrderByDescending(c => c.Date)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(c => new DeliveryChallanViewModel
                 {
                     Id = c.Id,
@@ -94,12 +145,14 @@ namespace IMS.Repositories
                         ModelNo = i.ModelNo,
                         Particulars = i.Particular,
                         Quantity = i.Quantity,
-                        //UOM = i.Unit,
                         Remarks = i.Remarks
                     }).ToList()
                 })
                 .ToListAsync();
+
+            return (challans, totalItems);
         }
+
 
 
         public async Task<DeliveryChallan?> GetAsync(int id)
@@ -178,6 +231,28 @@ namespace IMS.Repositories
         public async Task<bool> ExistsAsync(int id)
         {
             return await _context.DeliveryChallans.AnyAsync(c => c.Id == id);
+        }
+
+        public async Task<string> GenerateChallanNumberAsync()
+        {
+            var year = DateTime.Now.Year;
+
+            var lastChallan = await _context.DeliveryChallans
+                .Where(c => c.Date.Year == year)
+                .OrderByDescending(c => c.Id)
+                .FirstOrDefaultAsync();
+
+            int nextNumber = 1;
+            if (lastChallan != null)
+            {
+                var lastNo = lastChallan.ChallanNo.Split('-').Last();
+                if (int.TryParse(lastNo, out int lastSeq))
+                {
+                    nextNumber = lastSeq + 1;
+                }
+            }
+
+            return $"CH-{year}-{nextNumber:D6}";
         }
     }
 }

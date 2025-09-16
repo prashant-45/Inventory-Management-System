@@ -18,8 +18,8 @@ namespace IMS.ViewModels
         [Required]
         public string ReceiverName { get; set; }
 
-        [Required]
-        [Phone]
+        [Required(ErrorMessage = "Receiver phone is required")]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Enter a valid 10-digit mobile number")]
         public string ReceiverPhone { get; set; }
 
         //public string ReceiverAddress { get; set; }

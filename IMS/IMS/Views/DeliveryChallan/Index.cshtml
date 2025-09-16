@@ -4,15 +4,34 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h2 class="mb-2">Delivery Challans</h2>
-        <a asp-controller="DeliveryChallan" asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Create Challan
-        </a>
+
+        <div class="d-flex flex-wrap align-items-center gap-3" style="flex: 1;">
+            <!-- 🔍 Attractive Live Search -->
+            <form method="get" asp-action="Index" id="searchForm" class="flex-grow-1">
+                <div class="input-group input-group-lg shadow-sm w-100">
+                    <span class="input-group-text bg-light">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="searchTerm" value="@ViewBag.SearchTerm"
+                           id="searchInput"
+                           class="form-control border-0"
+                           placeholder="Search by Challan No, Receiver Name, or Phone Number..." />
+                    <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
+                </div>
+            </form>
+
+            <!-- Create Button -->
+            <a asp-controller="DeliveryChallan" asp-action="Create" class="btn btn-primary btn-lg shadow-sm">
+                <i class="bi bi-plus-circle"></i> Create Challan
+            </a>
+        </div>
     </div>
+
 
     <!-- Table -->
     <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover table-sm align-middle">
-            <thead class="table-light">
+        <table class="table table-bordered table-hover table-sm align-middle">
+            <thead class="table-light sticky-top">
                 <tr>
                     <th>#</th>
                     <th>Challan No</th>
@@ -35,14 +54,9 @@
                             <td>@challan.ReceiverPhone</td>
                             <td>
                                 <div class="d-flex flex-wrap gap-1">
-                                    <a asp-action="Details" asp-route-id="@challan.Id" class="btn btn-sm btn-info">
-                                        Details
-                                    </a>
-                                    <a asp-action="Edit" asp-route-id="@challan.Id" class="btn btn-sm btn-warning">
-                                        Edit
-                                    </a>
-                                    <button type="button"
-                                            class="btn btn-sm btn-danger"
+                                    <a asp-action="Details" asp-route-id="@challan.Id" class="btn btn-sm btn-info">Details</a>
+                                    <a asp-action="Edit" asp-route-id="@challan.Id" class="btn btn-sm btn-warning">Edit</a>
+                                    <button type="button" class="btn btn-sm btn-danger"
                                             data-bs-toggle="modal"
                                             data-bs-target="#deleteModal"
                                             data-id="@challan.Id"
@@ -65,7 +79,66 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination & Info -->
+    @if (ViewBag.TotalItems > 0)
+    {
+        <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 gap-2">
+            <!-- Record Info -->
+            <div class="text-muted small">
+                Showing <strong>@ViewBag.StartRecord</strong> to <strong>@ViewBag.EndRecord</strong> of <strong>@ViewBag.TotalItems</strong> records
+            </div>
+
+            <!-- Page Size Dropdown -->
+            <form method="get" class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 small">Show</label>
+                <select name="pageSize" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                    <option value="10" selected="@(ViewBag.PageSize == 10)">10</option>
+                    <option value="25" selected="@(ViewBag.PageSize == 25)">25</option>
+                    <option value="50" selected="@(ViewBag.PageSize == 50)">50</option>
+                    <option value="100" selected="@(ViewBag.PageSize == 100)">100</option>
+                </select>
+                <span class="small">entries</span>
+                <input type="hidden" name="searchTerm" value="@ViewBag.SearchTerm" /> <!-- keep search -->
+            </form>
+
+            <!-- Pagination Controls -->
+            <nav>
+                <ul class="pagination pagination-sm mb-0 flex-wrap">
+                    <li class="page-item @(ViewBag.Page == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(ViewBag.Page - 1)"
+                           asp-route-pageSize="@ViewBag.PageSize"
+                           asp-route-searchTerm="@ViewBag.SearchTerm">Previous</a>
+                    </li>
+
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(ViewBag.Page == i ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-pageSize="@ViewBag.PageSize"
+                               asp-route-searchTerm="@ViewBag.SearchTerm">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(ViewBag.Page == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(ViewBag.Page + 1)"
+                           asp-route-pageSize="@ViewBag.PageSize"
+                           asp-route-searchTerm="@ViewBag.SearchTerm">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
 </div>
+
+
+
 
 <!-- Success Modal -->
 <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
@@ -130,6 +203,26 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const searchInput = document.getElementById("searchInput");
+        const searchForm = document.getElementById("searchForm");
+
+        let typingTimer;
+        const typingDelay = 500; // ms delay after user stops typing
+
+        searchInput.addEventListener("keyup", function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                searchForm.submit(); // auto-submit the form
+            }, typingDelay);
+        });
+
+        searchInput.addEventListener("keydown", function () {
+            clearTimeout(typingTimer); // cancel if still typing
+        });
+    </script>
+
     @if (TempData["Success"] != null)
     {
         <script>

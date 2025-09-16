@@ -10,8 +10,10 @@ namespace IMS.Repositories.Interfaces
         Task UpdateAsync(DeliveryChallan challan, List<DeliveryItemViewModel> items);
         Task<bool> DeleteAsync(int id);
         Task<DeliveryChallan> GetAsync(int id);
-        Task<IEnumerable<DeliveryChallanViewModel>> GetAllChallansAsync();
+        Task<(IEnumerable<DeliveryChallanViewModel> Challans, int TotalItems)>
+     GetChallansAsync(int page, int pageSize, string searchTerm = "");
         Task<bool> ExistsAsync(int id);
-        
+        Task<string> GenerateChallanNumberAsync();
+
     }
 }

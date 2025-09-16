@@ -3,13 +3,9 @@
     ViewData["Title"] = "Create Delivery Challan";
 }
 
-@section Styles {
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-}
-
 <div class="container py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>Create Delivery Challan</h3>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h3 class="mb-2">Create Delivery Challan</h3>
         <a asp-controller="DeliveryChallan" asp-action="Index" class="btn btn-secondary">
             ← Back to List
         </a>
@@ -20,12 +16,12 @@
 
         <!-- Top Row -->
         <div class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-4 col-12">
                 <label asp-for="ChallanNumber" class="form-label">Challan No.</label>
-                <input asp-for="ChallanNumber" class="form-control" />
+                <input asp-for="ChallanNumber" class="form-control" readonly />
                 <span asp-validation-for="ChallanNumber" class="text-danger"></span>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 col-12">
                 <label asp-for="Date" class="form-label">Date</label>
                 <input asp-for="Date" class="form-control" type="date" />
                 <span asp-validation-for="Date" class="text-danger"></span>
@@ -36,16 +32,25 @@
 
         <!-- Receiver Info -->
         <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-6 col-12">
                 <label asp-for="ReceiverName" class="form-label">Receiver Name</label>
                 <input asp-for="ReceiverName" class="form-control" />
                 <span asp-validation-for="ReceiverName" class="text-danger"></span>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 col-12">
                 <label asp-for="ReceiverPhone" class="form-label">Receiver Phone</label>
-                <input asp-for="ReceiverPhone" class="form-control" placeholder="+91xxxxxxxxxx (E.164)" />
+                <input asp-for="ReceiverPhone"
+                       type="text"
+                       class="form-control"
+                       inputmode="numeric"
+                       pattern="\d{10}"
+                       maxlength="10"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                       placeholder="10 digit mobile number" />
+
                 <span asp-validation-for="ReceiverPhone" class="text-danger"></span>
             </div>
+
         </div>
 
         <hr />
@@ -59,9 +64,8 @@
                         <th style="width:5%">#</th>
                         <th>Model / Part No</th>
                         <th>Particulars / Description</th>
-                        <th style="width:10%">Qty</th>
-                        @* <th style="width:10%">UOM</th> *@
-                        <th style="width:15%">Remarks</th>
+                        <th style="width:15%">Qty</th>
+                        <th style="width:20%">Remarks</th>
                         <th style="width:8%"></th>
                     </tr>
                 </thead>
@@ -70,21 +74,10 @@
                     {
                         <tr data-index="@i">
                             <td>@(@i + 1)</td>
-                            <td>
-                                <input name="Items[@i].ModelNo" class="form-control form-control-sm" value="@Model.Items[i].ModelNo" />
-                            </td>
-                            <td>
-                                <input name="Items[@i].Particulars" class="form-control form-control-sm" value="@Model.Items[i].Particulars" />
-                            </td>
-                            <td>
-                                <input name="Items[@i].Quantity" type="number" min="1" class="form-control form-control-sm" value="@Model.Items[i].Quantity" />
-                            </td>
-                            @* <td>
-                                <input name="Items[@i].UOM" class="form-control form-control-sm" value="@Model.Items[i].UOM" />
-                            </td> *@
-                            <td>
-                                <input name="Items[@i].Remarks" class="form-control form-control-sm" value="@Model.Items[i].Remarks" />
-                            </td>
+                            <td><input name="Items[@i].ModelNo" class="form-control form-control-sm" /></td>
+                            <td><input name="Items[@i].Particulars" class="form-control form-control-sm" /></td>
+                            <td><input name="Items[@i].Quantity" type="number" min="1" class="form-control form-control-sm" value="1" /></td>
+                            <td><input name="Items[@i].Remarks" class="form-control form-control-sm" /></td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-danger remove-row">×</button>
                             </td>
@@ -104,6 +97,7 @@
         </div>
     </form>
 </div>
+
 
 
 @section Scripts {
