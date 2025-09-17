@@ -3,102 +3,151 @@
     ViewData["Title"] = "Create Delivery Challan";
 }
 
-<div class="container py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h3 class="mb-2">Create Delivery Challan</h3>
-        <a asp-controller="DeliveryChallan" asp-action="Index" class="btn btn-secondary">
-            ← Back to List
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="mb-1 text-primary"><i class="bi bi-file-earmark-plus me-2"></i>Create Delivery Challan</h3>
+            <p class="text-muted mb-0">Create a new delivery document with items</p>
+        </div>
+        <a asp-controller="DeliveryChallan" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
         </a>
     </div>
 
     <form asp-action="Create" method="post" id="challanForm" class="needs-validation" novalidate>
         @Html.AntiForgeryToken()
 
-        <!-- Top Row -->
-        <div class="row g-3">
-            <div class="col-md-4 col-12">
-                <label asp-for="ChallanNumber" class="form-label">Challan No.</label>
-                <input asp-for="ChallanNumber" class="form-control" readonly />
-                <span asp-validation-for="ChallanNumber" class="text-danger"></span>
+        <!-- Main Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light py-3">
+                <h5 class="card-title mb-0"><i class="bi bi-info-circle me-2"></i>Basic Information</h5>
             </div>
-            <div class="col-md-4 col-12">
-                <label asp-for="Date" class="form-label">Date</label>
-                <input asp-for="Date" class="form-control" type="date" />
-                <span asp-validation-for="Date" class="text-danger"></span>
+            <div class="card-body">
+                <!-- Top Row -->
+                <div class="row g-3">
+                    <div class="col-md-4 col-12">
+                        <label asp-for="ChallanNumber" class="form-label fw-semibold">Challan No.</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-hash text-muted"></i></span>
+                            <input asp-for="ChallanNumber" class="form-control" readonly />
+                        </div>
+                        <span asp-validation-for="ChallanNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <label asp-for="Date" class="form-label fw-semibold">Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-calendar text-muted"></i></span>
+                            <input asp-for="Date" class="form-control" type="date" />
+                        </div>
+                        <span asp-validation-for="Date" class="text-danger small"></span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <hr />
-
-        <!-- Receiver Info -->
-        <div class="row g-3">
-            <div class="col-md-6 col-12">
-                <label asp-for="ReceiverName" class="form-label">Receiver Name</label>
-                <input asp-for="ReceiverName" class="form-control" />
-                <span asp-validation-for="ReceiverName" class="text-danger"></span>
+        <!-- Receiver Info Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light py-3">
+                <h5 class="card-title mb-0"><i class="bi bi-person me-2"></i>Receiver Information</h5>
             </div>
-            <div class="col-md-6 col-12">
-                <label asp-for="ReceiverPhone" class="form-label">Receiver Phone</label>
-                <input asp-for="ReceiverPhone"
-                       type="text"
-                       class="form-control"
-                       inputmode="numeric"
-                       pattern="\d{10}"
-                       maxlength="10"
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                       placeholder="10 digit mobile number" />
-
-                <span asp-validation-for="ReceiverPhone" class="text-danger"></span>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6 col-12">
+                        <label asp-for="ReceiverName" class="form-label fw-semibold">Receiver Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person text-muted"></i></span>
+                            <input asp-for="ReceiverName" class="form-control" placeholder="Enter receiver's full name" />
+                        </div>
+                        <span asp-validation-for="ReceiverName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <label asp-for="ReceiverPhone" class="form-label fw-semibold">Receiver Phone</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-phone text-muted"></i></span>
+                            <input asp-for="ReceiverPhone"
+                                   type="text"
+                                   class="form-control"
+                                   inputmode="numeric"
+                                   pattern="\d{10}"
+                                   maxlength="10"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                   placeholder="10 digit mobile number" />
+                        </div>
+                        <span asp-validation-for="ReceiverPhone" class="text-danger small"></span>
+                    </div>
+                </div>
             </div>
-
         </div>
 
-        <hr />
-
-        <!-- Items Table -->
-        <h5 class="mb-2">Items</h5>
-        <div class="table-responsive">
-            <table class="table table-sm table-bordered align-middle" id="itemsTable">
-                <thead class="table-light">
-                    <tr>
-                        <th style="width:5%">#</th>
-                        <th>Model / Part No</th>
-                        <th>Particulars / Description</th>
-                        <th style="width:15%">Qty</th>
-                        <th style="width:20%">Remarks</th>
-                        <th style="width:8%"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int i = 0; i < Model.Items.Count; i++)
-                    {
-                        <tr data-index="@i">
-                            <td>@(@i + 1)</td>
-                            <td><input name="Items[@i].ModelNo" class="form-control form-control-sm" /></td>
-                            <td><input name="Items[@i].Particulars" class="form-control form-control-sm" /></td>
-                            <td><input name="Items[@i].Quantity" type="number" min="1" class="form-control form-control-sm" value="1" /></td>
-                            <td><input name="Items[@i].Remarks" class="form-control form-control-sm" /></td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-danger remove-row">×</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="mb-3">
-            <button type="button" id="addRow" class="btn btn-sm btn-outline-primary">+ Add Item</button>
+        <!-- Items Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="bi bi-list-check me-2"></i>Items</h5>
+                <button type="button" id="addRow" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Add Item
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="itemsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3" style="width:5%">#</th>
+                                <th>Model / Part No</th>
+                                <th>Particulars / Description</th>
+                                <th style="width:15%">Qty</th>
+                                <th style="width:20%">Remarks</th>
+                                <th style="width:8%" class="text-center pe-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Items.Count; i++)
+                            {
+                                <tr data-index="@i">
+                                    <td class="ps-3 fw-semibold">@(@i + 1)</td>
+                                    <td>
+                                        <input name="Items[@i].ModelNo" class="form-control form-control-sm" placeholder="Model number" />
+                                    </td>
+                                    <td>
+                                        <input name="Items[@i].Particulars" class="form-control form-control-sm" placeholder="Item description" />
+                                    </td>
+                                    <td>
+                                        <input name="Items[@i].Quantity" type="number" min="1" class="form-control form-control-sm text-center" value="1" />
+                                    </td>
+                                    <td>
+                                        <input name="Items[@i].Remarks" class="form-control form-control-sm" placeholder="Additional notes" />
+                                    </td>
+                                    <td class="text-center pe-3">
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-row py-1 px-2">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                
+                @if (Model.Items.Count == 0)
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                        <p class="mb-0">No items added yet. Click "Add Item" to get started.</p>
+                    </div>
+                }
+            </div>
         </div>
 
         <!-- Save Button -->
-        <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-success px-4">Save & Send WhatsApp</button>
+        <div class="d-flex justify-content-end gap-2">
+            <button type="reset" class="btn btn-outline-secondary px-4">Reset</button>
+            <button type="submit" class="btn btn-success px-4">
+                <i class="bi bi-whatsapp me-1"></i> Save & Send WhatsApp
+            </button>
         </div>
     </form>
 </div>
-
-
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -108,14 +157,21 @@
 
     <script>
         (function () {
+            'use strict';
+            
+            // Set today's date as default
+            document.getElementById('Date').valueAsDate = new Date();
+            
             function reindexRows() {
                 $('#itemsTable tbody tr').each(function (i) {
                     $(this).attr('data-index', i);
                     $(this).find('td:first').text(i + 1);
                     $(this).find('input').each(function () {
                         var name = $(this).attr('name');
-                        var newName = name.replace(/Items\[\d+\]/, 'Items[' + i + ']');
-                        $(this).attr('name', newName);
+                        if (name) {
+                            var newName = name.replace(/Items\[\d+\]/, 'Items[' + i + ']');
+                            $(this).attr('name', newName);
+                        }
                     });
                 });
             }
@@ -123,23 +179,102 @@
             $('#addRow').on('click', function () {
                 var index = $('#itemsTable tbody tr').length;
                 var tr = `<tr data-index="${index}">
-                                    <td>${index + 1}</td>
-                                    <td><input name="Items[${index}].ModelNo" class="form-control form-control-sm" /></td>
-                                    <td><input name="Items[${index}].Particulars" class="form-control form-control-sm" /></td>
-                                    <td><input name="Items[${index}].Quantity" type="number" min="1" value="1" class="form-control form-control-sm" /></td>
-                                    <td><input name="Items[${index}].Remarks" class="form-control form-control-sm" /></td>
-                                    <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row">×</button></td>
-                                  </tr>`;
+                            <td class="ps-3 fw-semibold">${index + 1}</td>
+                            <td><input name="Items[${index}].ModelNo" class="form-control form-control-sm" placeholder="Model number" /></td>
+                            <td><input name="Items[${index}].Particulars" class="form-control form-control-sm" placeholder="Item description" /></td>
+                            <td><input name="Items[${index}].Quantity" type="number" min="1" value="1" class="form-control form-control-sm text-center" /></td>
+                            <td><input name="Items[${index}].Remarks" class="form-control form-control-sm" placeholder="Additional notes" /></td>
+                            <td class="text-center pe-3">
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-row py-1 px-2">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                          </tr>`;
                 $('#itemsTable tbody').append(tr);
+                
+                // Remove empty state if it exists
+                $('#itemsTable').find('.text-center.py-5').remove();
             });
 
             $('#itemsTable').on('click', '.remove-row', function () {
                 $(this).closest('tr').remove();
                 reindexRows();
+                
+                // Show empty state if no items
+                if ($('#itemsTable tbody tr').length === 0) {
+                    $('#itemsTable tbody').append(`
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                                <p class="mb-0">No items added yet. Click "Add Item" to get started.</p>
+                            </td>
+                        </tr>
+                    `);
+                }
             });
 
+            // Initialize with one row if empty
             if ($('#itemsTable tbody tr').length === 0) $('#addRow').click();
+            
+            // Form validation
+            var form = document.getElementById('challanForm');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
         })();
-
     </script>
+
+    <style>
+        .card {
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            background-color: #f8f9fa;
+        }
+        
+        .table td {
+            border-color: #f1f3f7;
+            padding: 0.75rem;
+            vertical-align: middle;
+        }
+        
+        .btn {
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+        }
+        
+        .input-group-text {
+            border-radius: 0.5rem 0 0 0.5rem;
+        }
+        
+        /* Mobile responsive styles */
+       
+    </style>
 }
