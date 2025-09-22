@@ -3,57 +3,96 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h2>Welcome, @User.Identity.Name 👋</h2>
-            <p class="text-muted">Here’s a quick overview of your system.</p>
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="text-primary mb-2">
+                <i class="bi bi-speedometer2 me-2"></i> Welcome, @User.Identity.Name 👋
+            </h2>
+            <p class="text-muted mb-0">Quick access to your main actions</p>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Example Card -->
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body">
-                    <h5 class="card-title">Inventory</h5>
-                    <p class="card-text">Manage and track stock.</p>
-                    <a asp-controller="Inventory" asp-action="Index" class="btn btn-sm btn-primary">Go</a>
+    <!-- Dashboard Cards -->
+    <div class="row g-4">
+
+        <!-- User Profile -->
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 rounded-3 hover-card">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-info d-flex align-items-center">
+                        <i class="bi bi-person-circle me-2"></i> User Profile
+                    </h5>
+                    <p class="card-text flex-grow-1 text-muted">View your profile details and change your password.</p>
+                    <a asp-controller="User" asp-action="Profile" class="btn btn-outline-info mt-auto w-100">
+                        <i class="bi bi-key me-1"></i> Manage Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Delivery Challan -->
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 rounded-3 hover-card">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-primary d-flex align-items-center">
+                        <i class="bi bi-truck me-2"></i> Delivery Challan
+                    </h5>
+                    <p class="card-text flex-grow-1 text-muted">Create and manage delivery challans.</p>
+                    <a asp-controller="DeliveryChallan" asp-action="Index" class="btn btn-outline-primary mt-auto w-100">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Go
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body">
-                    <h5 class="card-title">Sales</h5>
-                    <p class="card-text">View and manage sales records.</p>
-                    <a asp-controller="Sales" asp-action="Index" class="btn btn-sm btn-success">Go</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body">
-                    <h5 class="card-title">Users</h5>
-                    <p class="card-text">Manage user accounts.</p>
-                    <a asp-controller="Users" asp-action="Index" class="btn btn-sm btn-dark">Go</a>
-                </div>
-            </div>
-        </div>
-
+        <!-- Manage Permissions (Admin only) -->
         @if (User.IsInRole("Admin"))
         {
-            <div class="col-md-3">
-                <div class="card shadow-sm border-0 rounded-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Admin</h5>
-                        <p class="card-text">Manage roles and permissions.</p>
-                        <a asp-controller="Admin" asp-action="ManageRoles" class="btn btn-sm btn-warning">Go</a>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card shadow-sm border-0 h-100 rounded-3 hover-card">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-warning d-flex align-items-center">
+                            <i class="bi bi-shield-lock me-2"></i> Manage Permissions
+                        </h5>
+                        <p class="card-text flex-grow-1 text-muted">Assign roles and manage system permissions.</p>
+                        <a asp-controller="Admin" asp-action="ManagePermissions" class="btn btn-outline-warning mt-auto w-100">
+                            <i class="bi bi-arrow-right-circle me-1"></i> Go
+                        </a>
                     </div>
                 </div>
             </div>
         }
+
+        
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.75rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .hover-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-title {
+            font-weight: 600;
+        }
+
+        .btn {
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    </style>
+}

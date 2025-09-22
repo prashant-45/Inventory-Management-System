@@ -5,6 +5,7 @@ using IMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Security.Claims;
 
 namespace IMS.Controllers
 {
@@ -22,7 +23,9 @@ namespace IMS.Controllers
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string searchTerm = "")
         {
             // Call repo method (already handles paging + search)
-            var (challans, totalItems) = await _deliveryChallanRepo.GetChallansAsync(page, pageSize, searchTerm);
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var (challans, totalItems) = await _deliveryChallanRepo.GetChallansAsync(page, pageSize, Convert.ToInt32(userId), searchTerm, role);
 
             // Compute pagination metadata
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
@@ -35,10 +38,9 @@ namespace IMS.Controllers
             ViewBag.EndRecord = Math.Min(page * pageSize, totalItems);
             ViewBag.SearchTerm = searchTerm;
 
+            //TempData["SuccessMessage"] = $"Challan created successfully! ✅";
             return View(challans);
         }
-
-
 
         // GET: DeliveryChallan/Create
         public async Task<IActionResult> Create()
@@ -70,9 +72,14 @@ namespace IMS.Controllers
 
             try
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+
+                model.createdByName = userName;
+                model.createdBy = Convert.ToInt32(userId);
                 var challan = await _deliveryChallanRepo.CreateAsync(model);
 
-                TempData["Success"] = "Challan created successfully!";
+                TempData["SuccessMessage"] = $"Challan #{challan.ChallanNo} created successfully! ✅";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

@@ -1,64 +1,110 @@
 ﻿@model IMS.ViewModels.DeliveryChallanViewModel
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-        <h2 class="mb-2">Challan Details</h2>
-        <a asp-action="Index" class="btn btn-secondary mb-2">
-            <i class="bi bi-arrow-left"></i> Back to List
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="text-primary mb-2"><i class="bi bi-truck me-2"></i>Challan Details</h2>
+            <p class="text-muted mb-0">Delivery documentation information</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
         </a>
     </div>
 
-    <!-- Card for challan info -->
+    <!-- Challan Information Card -->
     <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-3">
+            <h5 class="card-title mb-0 d-flex align-items-center">
+                <i class="bi bi-info-circle me-2 text-primary"></i> Challan Information
+            </h5>
+        </div>
         <div class="card-body">
-            <h5 class="card-title">Challan Information</h5>
-            <dl class="row">
-                <dt class="col-sm-3">Challan No</dt>
-                <dd class="col-sm-9">@Model.ChallanNumber</dd>
-
-                <dt class="col-sm-3">Date</dt>
-                <dd class="col-sm-9">@Model.Date.ToString("dd-MM-yyyy")</dd>
-
-                <dt class="col-sm-3">Receiver Name</dt>
-                <dd class="col-sm-9">@Model.ReceiverName</dd>
-
-                <dt class="col-sm-3">Receiver Phone</dt>
-                <dd class="col-sm-9">@Model.ReceiverPhone</dd>
-
-                @* <dt class="col-sm-3">Reference</dt>
-                <dd class="col-sm-9">@Model.ReferenceNumber</dd> *@
-            </dl>
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Challan Number</label>
+                        <p class="detail-value text-primary fw-bold">@Model.ChallanNumber</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Date</label>
+                        <p class="detail-value">
+                            <i class="bi bi-calendar me-1 text-muted"></i>
+                            @Model.Date.ToString("dd-MM-yyyy")
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Receiver Name</label>
+                        <p class="detail-value">
+                            <i class="bi bi-person me-1 text-muted"></i>
+                            @Model.ReceiverName
+                        </p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Receiver Phone</label>
+                        <p class="detail-value">
+                            <a href="tel:@Model.ReceiverPhone" class="text-decoration-none">
+                                <i class="bi bi-telephone me-1 text-muted"></i>
+                                @Model.ReceiverPhone
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Card for challan items -->
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h5 class="card-title">Items</h5>
-
-            @if (Model.Items != null && Model.Items.Any())
+    <!-- Items Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 d-flex align-items-center">
+                <i class="bi bi-list-check me-2 text-primary"></i> Items
+                @if (Model.Items != null && Model.Items.Any(i => i.Id != 0))
+                {
+                    <span class="badge bg-primary ms-2">@Model.Items.Count(i => i.Id != 0) items</span>
+                }
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Items != null && Model.Items.Any(i => i.Id != 0))
             {
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover table-sm">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>#</th>
-                                <th>ModelNo</th>
-                                <th>Particulars</th>
-                                <th>Quantity</th>
-                                <th>Remarks</th>
+                                <th class="ps-4" data-label="#">#</th>
+                                <th data-label="Model No">Model No</th>
+                                <th data-label="Particulars">Particulars</th>
+                                <th class="text-center" data-label="Qty">Qty</th>
+                                <th data-label="Remarks">Remarks</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @{
+                                int itemCount = 0;
+                            }
                             @for (int i = 0; i < Model.Items.Count; i++)
                             {
-                                if (Model.Items[i].Id == 0) { continue; } // skip blank default item
+                                if (Model.Items[i].Id == 0) { continue; }
+                                itemCount++;
                                 <tr>
-                                    <td>@(i + 1)</td>
-                                    <td>@Model.Items[i].ModelNo</td>
-                                    <td>@Model.Items[i].Particulars</td>
-                                    <td>@Model.Items[i].Quantity</td>
-                                    <td>@Model.Items[i].Remarks</td>
+                                    <td class="ps-4 fw-semibold" data-label="#">@itemCount</td>
+                                    <td data-label="Model No">
+                                        <span class="text-primary">@Model.Items[i].ModelNo</span>
+                                    </td>
+                                    <td data-label="Particulars">@Model.Items[i].Particulars</td>
+                                    <td class="text-center" data-label="Qty">
+                                        <span class="badge bg-light text-dark border">@Model.Items[i].Quantity</span>
+                                    </td>
+                                    <td data-label="Remarks">
+                                        <small class="text-muted">@Model.Items[i].Remarks</small>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -67,50 +113,63 @@
             }
             else
             {
-                <p class="text-muted">No items available for this challan.</p>
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox display-4 d-block mb-3"></i>
+                    <h5 class="text-muted">No items available</h5>
+                    <p class="mb-0">This challan doesn't contain any items</p>
+                </div>
             }
         </div>
     </div>
 
-    <div class="mt-3">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
-            <i class="bi bi-pencil"></i> Edit
-        </a>
-        <button type="button"
-                class="btn btn-sm btn-danger"
-                data-bs-target="#deleteModal"
-                data-bs-toggle="modal"
-                data-id="@Model.Id"
-                >
-            Delete
-        </button>
+    <!-- Action Buttons -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4">
+        <div class="text-muted small">
+            <i class="bi bi-info-circle me-1"></i> Created on @Model.Date.ToString("MMMM dd, yyyy")
+        </div>
+        <div class="d-flex gap-2 flex-wrap action-buttons-mobile">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="bi bi-pencil me-1"></i> Edit
+            </a>
+            <button type="button" class="btn btn-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteModal"
+                    data-id="@Model.Id"
+                    data-name="@Model.ChallanNumber">
+                <i class="bi bi-trash me-1"></i> Delete
+            </button>
+            <a href="#" class="btn btn-success" onclick="shareChallan()">
+                <i class="bi bi-share me-1"></i> Share
+            </a>
+        </div>
     </div>
 </div>
 
+<!-- Delete Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm modal-md modal-lg">
-        <div class="modal-content rounded-3 shadow-lg">
-            <form method="post" asp-action="DeleteConfirmed" class="w-100">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-3 shadow">
+            <form method="post" asp-action="DeleteConfirmed">
                 @Html.AntiForgeryToken()
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="deleteModalLabel">
+                    <h5 class="modal-title">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Delete
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center">
+                <div class="modal-body text-center py-4">
                     <input type="hidden" name="id" id="deleteId" />
-                    <p class="fs-6 mb-0">
-                        Are you sure you want to delete <strong class="text-danger">?</strong>
-                        
+                    <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
+                    <p class="fs-5 mt-3">
+                        Are you sure you want to delete<br />
+                        <strong id="deleteName" class="text-danger">@Model.ChallanNumber</strong>?
                     </p>
+                    <p class="text-muted">This action cannot be undone.</p>
                 </div>
-                <div class="modal-footer justify-content-center gap-2">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
-                        Cancel
-                    </button>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger px-4">
-                        <i class="bi bi-trash-fill me-1"></i> Yes, Delete
+                        <i class="bi bi-trash-fill me-1"></i> Delete
                     </button>
                 </div>
             </form>
@@ -118,15 +177,96 @@
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        // Delete modal functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            var deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var id = button.getAttribute('data-id');
+                    var name = button.getAttribute('data-name');
+                    document.getElementById('deleteId').value = id;
+                    document.getElementById('deleteName').textContent = name;
+                });
+            }
+        });
 
-<script>
-    var deleteModal = document.getElementById('deleteModal');
-    deleteModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var id = button.getAttribute('data-id');
-        var name = button.getAttribute('data-name');
+        // Share functionality (example)
+        function shareChallan() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Delivery Challan: @Model.ChallanNumber',
+                    text: 'Check out this delivery challan from @Model.ReceiverName',
+                    url: window.location.href
+                })
+                .catch(console.error);
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                alert('Share this URL: ' + window.location.href);
+            }
+        }
+    </script>
 
-        document.getElementById('deleteId').value = id;
-        document.getElementById('deleteName').innerText = name;
-    });
-</script>
+    <style>
+        /* Only adding styles that are specific to this page */
+        .detail-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f3f7;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-size: 1rem;
+            margin-bottom: 0;
+            color: #495057;
+        }
+        
+        /* Card styling that complements existing styles */
+        .card {
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        
+        /* Table styling that works with existing mobile styles */
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+        }
+        
+        .table td {
+            border-color: #f1f3f7;
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+        }
+        
+        /* Button enhancements */
+        .btn {
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+       
+    </style>
+}

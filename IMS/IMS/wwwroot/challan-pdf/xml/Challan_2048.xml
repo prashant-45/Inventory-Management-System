@@ -1,0 +1,14 @@
+<DeliveryChallan>
+  <Id>2048</Id>
+  <ChallanNo>CH-2025-002336</ChallanNo>
+  <ReceiverName>Prashant dsds</ReceiverName>
+  <ReceiverMobile>9876543234</ReceiverMobile>
+  <Date>2025-09-22T00:00:00</Date>
+  <createdByName>roy</createdByName>
+  <Items>
+    <Particular>asdf</Particular>
+    <ModelNo>df</ModelNo>
+    <Quantity>1</Quantity>
+    <Remarks>sdfg</Remarks>
+  </Items>
+</DeliveryChallan>

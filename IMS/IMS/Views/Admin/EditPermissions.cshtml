@@ -1,48 +1,185 @@
 ﻿@model IMS.Models.UserPermissionViewModel
 
-<div class="container mt-4">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">🔒 Edit Permissions for <strong>@Model.UserName</strong></h5>
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="text-primary mb-2"><i class="bi bi-shield-lock me-2"></i>User Permissions</h2>
+            <p class="text-muted mb-0">Manage access rights for <strong class="text-dark">@Model.UserName</strong></p>
+        </div>
+        <a asp-action="ManagePermissions" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Users
+        </a>
+    </div>
+
+    <!-- Permissions Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light py-3">
+            <h5 class="card-title mb-0 d-flex align-items-center">
+                <i class="bi bi-key me-2 text-primary"></i> Permission Settings
+                <span class="badge bg-primary ms-2">@Model.Permissions.Count permissions</span>
+            </h5>
         </div>
         <div class="card-body">
-            <form method="post">
+            <form method="post" id="permissionsForm">
                 <input type="hidden" asp-for="UserId" />
+                
+                <!-- Permission Categories (if you have them) -->
+                <div class="mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-grid-3x3-gap text-primary me-2"></i>
+                        <h6 class="mb-0 text-uppercase fw-semibold text-muted">All Permissions</h6>
+                    </div>
+                    
+                    <div class="row g-3">
+                        @foreach (var perm in Model.Permissions)
+                        {
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="permission-card border rounded-3 p-3 h-100 d-flex flex-column">
+                                    <div class="d-flex align-items-start mb-2">
+                                        <input class="form-check-input flex-shrink-0 me-2 mt-1"
+                                               type="checkbox"
+                                               asp-for="@perm.IsAssigned"
+                                               value="true"
+                                               name="Permissions[@Model.Permissions.IndexOf(perm)].IsAssigned"
+                                               id="perm-@perm.PermissionId" />
+                                        <label class="form-check-label fw-semibold mb-0 flex-grow-1" for="perm-@perm.PermissionId">
+                                            @perm.PermissionName
+                                        </label>
+                                    </div>
+                                    <div class="mt-auto">
+                                        <small class="text-muted permission-description">
+                                            @GetPermissionDescription(perm.PermissionName)
+                                        </small>
+                                    </div>
 
-                <div class="row">
-                    @foreach (var perm in Model.Permissions)
-                    {
-                        <div class="col-md-4 mb-3">
-                            <div class="form-check border rounded p-2 shadow-sm d-flex align-items-center">
-                                <input class="form-check-input" style="margin-right:6px;"
-                                       type="checkbox"
-                                       asp-for="@perm.IsAssigned"
-                                       value="true"
-                                       name="Permissions[@Model.Permissions.IndexOf(perm)].IsAssigned" />
-
-                                <label class="form-check-label fw-semibold mb-0">
-                                    @perm.PermissionName
-                                </label>
-
-                                <input type="hidden" name="Permissions[@Model.Permissions.IndexOf(perm)].PermissionId" value="@perm.PermissionId" />
-                                <input type="hidden" name="Permissions[@Model.Permissions.IndexOf(perm)].PermissionName" value="@perm.PermissionName" />
+                                    <input type="hidden" name="Permissions[@Model.Permissions.IndexOf(perm)].PermissionId" value="@perm.PermissionId" />
+                                    <input type="hidden" name="Permissions[@Model.Permissions.IndexOf(perm)].PermissionName" value="@perm.PermissionName" />
+                                </div>
                             </div>
-                        </div>
-
-
-
-                    }
+                        }
+                    </div>
                 </div>
 
-                <div class="d-flex justify-content-between mt-4">
-                    <a asp-action="ManagePermissions" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save"></i> Save Changes
-                    </button>
+                <!-- Action Buttons -->
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 border-top pt-4 mt-4">
+                    <div class="text-muted small">
+                        <i class="bi bi-info-circle me-1"></i> Changes take effect immediately
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a asp-action="ManagePermissions" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-circle me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-circle me-1"></i> Save Changes
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@functions {
+    public string GetPermissionDescription(string permissionName)
+    {
+        var descriptions = new Dictionary<string, string>
+        {
+            { "Create", "Allows creating new records and entries" },
+            { "Edit", "Grants permission to modify existing content" },
+            { "Delete", "Enables removal of records and data" },
+            { "View", "Provides read-only access to content" },
+            { "Admin", "Full system administration capabilities" },
+            { "ManageUsers", "Ability to manage user accounts and permissions" },
+            { "Reports", "Access to generate and view system reports" },
+            { "Export", "Permission to export data from the system" },
+            { "Import", "Ability to import data into the system" }
+        };
+
+        return descriptions.ContainsKey(permissionName) 
+            ? descriptions[permissionName] 
+            : "System access permission";
+    }
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation to permission cards
+            const permissionCards = document.querySelectorAll('.permission-card');
+            permissionCards.forEach(card => {
+                card.addEventListener('change', function(e) {
+                    if (e.target.type === 'checkbox') {
+                        const card = e.target.closest('.permission-card');
+                        if (e.target.checked) {
+                            card.classList.add('permission-active');
+                        } else {
+                            card.classList.remove('permission-active');
+                        }
+                    }
+                });
+                
+                // Initialize active state
+                const checkbox = card.querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    card.classList.add('permission-active');
+                }
+            });
+            
+            // Form submission feedback
+            const form = document.getElementById('permissionsForm');
+            form.addEventListener('submit', function() {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '<i class="bi bi-arrow-repeat spinner"></i> Saving...';
+                submitBtn.disabled = true;
+            });
+        });
+    </script>
+
+    <style>
+        .permission-card {
+            transition: all 0.3s ease;
+            background: #fafafa;
+            border: 1px solid #e9ecef !important;
+        }
+        
+        .permission-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #4361ee !important;
+        }
+        
+        .permission-active {
+            background: rgba(67, 97, 238, 0.05);
+            border-color: #4361ee !important;
+            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.1);
+        }
+        
+        .permission-description {
+            line-height: 1.4;
+            font-size: 0.85rem;
+        }
+        
+        .form-check-input {
+            width: 1.2em;
+            height: 1.2em;
+            margin-top: 0.15em;
+        }
+        
+        .form-check-input:checked {
+            background-color: #4361ee;
+            border-color: #4361ee;
+        }
+        
+        .form-check-input:focus {
+            border-color: #4361ee;
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+       
+    </style>
+}

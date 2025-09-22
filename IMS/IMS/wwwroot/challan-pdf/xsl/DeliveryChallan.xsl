@@ -8,40 +8,200 @@
 		<html>
 			<head>
 				<style>
-					body { font-family: Arial; font-size: 12px; }
-					h2 { text-align: center; }
-					table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-					th, td { border: 1px solid #333; padding: 6px; text-align: left; }
-					th { background-color: #f2f2f2; }
+					body {
+					font-family: Arial, sans-serif;
+					font-size: 12px;
+					margin: 0;
+					padding: 15px;
+					color: #333;
+					}
+					.header {
+					text-align: center;
+					margin-bottom: 20px;
+					border-bottom: 2px solid #2c3e50;
+					padding-bottom: 15px;
+					}
+					.logo {
+					max-width: 180px;
+					height: auto;
+					margin-bottom: 10px;
+					}
+					h2 {
+					text-align: center;
+					color: #2c3e50;
+					margin: 10px 0 5px 0;
+					font-size: 24px;
+					}
+					.subtitle {
+					text-align: center;
+					color: #7f8c8d;
+					font-size: 14px;
+					margin-bottom: 15px;
+					}
+					.details-container {
+					display: table;
+					width: 100%;
+					margin-bottom: 20px;
+					}
+					.detail-card {
+					display: table-cell;
+					width: 50%;
+					vertical-align: top;
+					padding: 10px;
+					}
+					.detail-content {
+					background-color: #f8f9fa;
+					border-radius: 5px;
+					padding: 12px;
+					border-left: 4px solid #3498db;
+					height: 100%;
+					}
+					.detail-content h3 {
+					margin: 0 0 10px 0;
+					color: #2c3e50;
+					font-size: 14px;
+					}
+					.detail-item {
+					margin-bottom: 5px;
+					}
+					.detail-item strong {
+					display: inline-block;
+					min-width: 100px;
+					color: #2c3e50;
+					}
+					table {
+					width: 100%;
+					border-collapse: collapse;
+					margin-top: 10px;
+					margin-bottom: 20px;
+					}
+					th, td {
+					border: 1px solid #333;
+					padding: 8px;
+					text-align: left;
+					}
+					th {
+					background-color: #2c3e50;
+					color: white;
+					font-weight: bold;
+					}
+					.purpose-section {
+					margin: 15px 0;
+					}
+					.purpose-title {
+					font-weight: bold;
+					margin-bottom: 8px;
+					color: #2c3e50;
+					}
+					.purpose-options {
+					margin-left: 10px;
+					}
+					.signature-section {
+					display: table;
+					width: 100%;
+					margin-top: 40px;
+					}
+					.signature-box {
+					display: table-cell;
+					width: 50%;
+					vertical-align: top;
+					padding: 10px;
+					border-top: 1px solid #ddd;
+					}
+					.signature-box p {
+					font-weight: bold;
+					margin-bottom: 40px;
+					color: #2c3e50;
+					}
+					.footer {
+					text-align: center;
+					margin-top: 30px;
+					padding-top: 15px;
+					border-top: 1px solid #ddd;
+					color: #7f8c8d;
+					font-size: 11px;
+					}
 				</style>
 			</head>
 			<body>
-				<h2>Delivery Challan</h2>
-				<p>
-					<b>Challan No:</b>
-					<xsl:value-of select="DeliveryChallan/ChallanNo" />
-				</p>
-				<p>
-					<b>Receiver:</b>
-					<xsl:value-of select="DeliveryChallan/ReceiverName" />
-				</p>
-				<p>
-					<b>Mobile:</b>
-					<xsl:value-of select="DeliveryChallan/ReceiverMobile" />
-				</p>
-				<p>
-					<b>Date:</b>
-					<xsl:value-of select="DeliveryChallan/Date" />
-				</p>
+				<div class="header">
+					<img class="logo" src="/images/kava.jpg" alt="Company Logo" />
+					<h2>DELIVERY CHALLAN</h2>
+					<div class="subtitle">COMFORT ON YOUR FINGER TIPS</div>
+				</div>
+
+				<div class="details-container">
+					<div class="detail-card">
+						<div class="detail-content">
+							<h3>Delivered To</h3>
+							<div class="detail-item">
+								<strong>Name:</strong>
+								<xsl:value-of select="DeliveryChallan/ReceiverName" />
+							</div>
+							<div class="detail-item">
+								<strong>Contact:</strong>
+								<xsl:value-of select="DeliveryChallan/ReceiverMobile" />
+							</div>
+							<div class="detail-item">
+								<strong>Address:</strong>
+								[Address Not Provided]
+							</div>
+							<div class="detail-item">
+								<strong>GSTN:</strong>
+								[GSTN Not Provided]
+							</div>
+						</div>
+					</div>
+					<div class="detail-card">
+						<div class="detail-content">
+							<h3>Delivery Information</h3>
+							<div class="detail-item">
+								<strong>Challan No:</strong>
+								<xsl:value-of select="DeliveryChallan/ChallanNo" />
+							</div>
+							<div class="detail-item">
+								<strong>Date:</strong>
+								<xsl:value-of select="substring(DeliveryChallan/Date, 1, 10)" />
+							</div>
+							<div class="detail-item">
+								<strong>Waybill No:</strong>
+								[Waybill Not Provided]
+							</div>
+							<div class="detail-item">
+								<strong>Booking Date:</strong>
+								[Booking Date Not Provided]
+							</div>
+							<div class="detail-item">
+								<strong>P.O. No:</strong>
+								[PO Number Not Provided]
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="purpose-section">
+					<div class="purpose-title">Purpose of Delivery:</div>
+					<div class="purpose-options">
+						☐ Sale ☐ Replacement ☐ Repair ☐ Demo
+					</div>
+				</div>
 
 				<table>
 					<tr>
-						<th>Particular</th>
+						<th>S.No.</th>
+						<th>Model No.</th>
+						<th>Particulars</th>
 						<th>Quantity</th>
 						<th>Remarks</th>
 					</tr>
 					<xsl:for-each select="DeliveryChallan/Items">
 						<tr>
+							<td>
+								<xsl:value-of select="position()" />
+							</td>
+							<td>
+								<xsl:value-of select="ModelNo" />
+							</td>
 							<td>
 								<xsl:value-of select="Particular" />
 							</td>
@@ -54,6 +214,35 @@
 						</tr>
 					</xsl:for-each>
 				</table>
+
+				<div class="signature-section">
+					<div class="signature-box">
+						<p>Receiver's Signature (Affix Company Stamp)</p>
+						<div class="detail-item">
+							<strong>Name:</strong>
+							<xsl:value-of select="DeliveryChallan/ReceiverName" />
+						</div>
+						<div class="detail-item">
+							<strong>Date:</strong>
+							<xsl:value-of select="substring(DeliveryChallan/Date, 1, 10)" />
+						</div>
+					</div>
+					<div class="signature-box">
+						<p>Authorized Signature</p>
+						<div class="detail-item">
+							<strong>For HOCH STANDARD SOLUTIONS</strong>
+						</div>
+						<div class="detail-item">
+							<strong>GSTIN:</strong> OBAJIHTIRBEIZ6
+						</div>
+					</div>
+				</div>
+
+				<div class="footer">
+					ST FLOOR, E-106, MAHIMA FLORENZA, PATHAKAN COLONY, MANSAROVSKE EXT., Jaipur, Rajasthan, 302030
+					<br />
+					Phone: +91-9528959553 | Email: info@hochstandard.com
+				</div>
 			</body>
 		</html>
 	</xsl:template>

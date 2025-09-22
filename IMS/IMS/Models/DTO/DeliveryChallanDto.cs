@@ -7,6 +7,7 @@
         public string ReceiverName { get; set; }
         public string ReceiverMobile { get; set; }
         public DateTime Date { get; set; }
+        public string createdByName { get; set; }
         public List<DeliveryChallanItemDto> Items { get; set; }
     }
 

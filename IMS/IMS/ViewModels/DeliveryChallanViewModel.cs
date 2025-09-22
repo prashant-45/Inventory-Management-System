@@ -22,6 +22,9 @@ namespace IMS.ViewModels
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Enter a valid 10-digit mobile number")]
         public string ReceiverPhone { get; set; }
 
+        public int? createdBy { get; set; }
+        public string? createdByName { get; set; }
+
         //public string ReceiverAddress { get; set; }
 
         public List<DeliveryItemViewModel> Items { get; set; }

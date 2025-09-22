@@ -198,21 +198,22 @@
 </div>
 
 <!-- Success Modal -->
+<!-- Success Modal -->
 <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-3 shadow">
+        <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="successModalLabel">
                     <i class="bi bi-check-circle-fill me-2"></i> Success
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center py-4">
-                <i class="bi bi-check2-circle text-success" style="font-size: 3rem;"></i>
-                <p class="fs-5 mt-3">@TempData["Success"]</p>
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <p class="fs-5 mt-3" id="modalMessage"></p>
             </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">OK</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
@@ -265,13 +266,17 @@
         }
         
         // Auto-show success modal if there's a success message
-        @if (TempData["Success"] != null)
-        {
-            <text>
-            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-            successModal.show();
-            </text>
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // Auto-show success modal if there's a success message
+            var successMessage = '@TempData["SuccessMessage"]';
+            console.log('Success message:', successMessage); // Debug
+
+            if (successMessage && successMessage !== '') {
+                $('#modalMessage').text(successMessage);
+                var myModal = new bootstrap.Modal(document.getElementById('successModal'));
+                myModal.show();
+            }
+        });
         
         // Enhanced search with debounce
         const searchInput = document.getElementById('searchInput');

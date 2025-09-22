@@ -36,6 +36,7 @@ namespace IMS.Repositories
                     ReceiverName = model.ReceiverName,
                     ReceiverMobile = model.ReceiverPhone,
                     ChallanNo = model.ChallanNumber,
+                    createdBy= (int)model.createdBy,
                     Items = model.Items.Select(i => new DeliveryChallanItem
                     {
                         Particular = i.Particulars,
@@ -58,6 +59,7 @@ namespace IMS.Repositories
                     ReceiverName = challan.ReceiverName,
                     ReceiverMobile = challan.ReceiverMobile,
                     Date = challan.Date,
+                    createdByName=model.createdByName,
                     Items = challan.Items.Select(i => new DeliveryChallanItemDto
                     {
                         Particular = i.Particular,
@@ -110,12 +112,18 @@ namespace IMS.Repositories
 
 
         public async Task<(IEnumerable<DeliveryChallanViewModel> Challans, int TotalItems)>
-     GetChallansAsync(int page, int pageSize, string searchTerm = "")
+     GetChallansAsync(int page, int pageSize, int userId, string searchTerm = "",string role="")
         {
             var query = _context.DeliveryChallans
                 .Include(c => c.Items)
                 .AsNoTracking()
                 .AsQueryable();
+
+            // ✅ Filter by role
+            if (!string.Equals(role, "admin", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(c => c.createdBy == userId);
+            }
 
             // 🔍 Search filter
             if (!string.IsNullOrWhiteSpace(searchTerm))

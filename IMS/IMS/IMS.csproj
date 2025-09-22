@@ -20,6 +20,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\challan-pdf\pdf\" />
     <Folder Include="wwwroot\challan-pdf\xml\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>

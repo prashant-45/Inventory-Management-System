@@ -1,0 +1,19 @@
+<DeliveryChallan>
+  <Id>2036</Id>
+  <ChallanNo>CH-2025-002324</ChallanNo>
+  <ReceiverName>Ravi</ReceiverName>
+  <ReceiverMobile>8765987654</ReceiverMobile>
+  <Date>2025-09-19T00:00:00</Date>
+  <Items>
+    <Particular>yigus</Particular>
+    <ModelNo>00ft</ModelNo>
+    <Quantity>1</Quantity>
+    <Remarks>shdsujd</Remarks>
+  </Items>
+  <Items>
+    <Particular>njskdjb</Particular>
+    <ModelNo>00ftt</ModelNo>
+    <Quantity>3</Quantity>
+    <Remarks>skdjnksj</Remarks>
+  </Items>
+</DeliveryChallan>

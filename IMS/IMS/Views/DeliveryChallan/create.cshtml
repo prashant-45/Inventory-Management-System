@@ -128,7 +128,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 @if (Model.Items.Count == 0)
                 {
                     <div class="text-center py-5 text-muted">
@@ -149,19 +149,42 @@
     </form>
 </div>
 
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-3 shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle-fill me-2"></i> Success
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-check2-circle text-success" style="font-size: 3rem;"></i>
+                <p class="fs-5 mt-3" id="modalMessage"></p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
 
     <script>
         (function () {
             'use strict';
-            
+
             // Set today's date as default
             document.getElementById('Date').valueAsDate = new Date();
-            
+
             function reindexRows() {
                 $('#itemsTable tbody tr').each(function (i) {
                     $(this).attr('data-index', i);
@@ -179,19 +202,19 @@
             $('#addRow').on('click', function () {
                 var index = $('#itemsTable tbody tr').length;
                 var tr = `<tr data-index="${index}">
-                            <td class="ps-3 fw-semibold">${index + 1}</td>
-                            <td><input name="Items[${index}].ModelNo" class="form-control form-control-sm" placeholder="Model number" /></td>
-                            <td><input name="Items[${index}].Particulars" class="form-control form-control-sm" placeholder="Item description" /></td>
-                            <td><input name="Items[${index}].Quantity" type="number" min="1" value="1" class="form-control form-control-sm text-center" /></td>
-                            <td><input name="Items[${index}].Remarks" class="form-control form-control-sm" placeholder="Additional notes" /></td>
-                            <td class="text-center pe-3">
-                                <button type="button" class="btn btn-sm btn-outline-danger remove-row py-1 px-2">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                          </tr>`;
+                                                    <td class="ps-3 fw-semibold">${index + 1}</td>
+                                                    <td><input name="Items[${index}].ModelNo" class="form-control form-control-sm" placeholder="Model number" /></td>
+                                                    <td><input name="Items[${index}].Particulars" class="form-control form-control-sm" placeholder="Item description" /></td>
+                                                    <td><input name="Items[${index}].Quantity" type="number" min="1" value="1" class="form-control form-control-sm text-center" /></td>
+                                                    <td><input name="Items[${index}].Remarks" class="form-control form-control-sm" placeholder="Additional notes" /></td>
+                                                    <td class="text-center pe-3">
+                                                        <button type="button" class="btn btn-sm btn-outline-danger remove-row py-1 px-2">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                  </tr>`;
                 $('#itemsTable tbody').append(tr);
-                
+
                 // Remove empty state if it exists
                 $('#itemsTable').find('.text-center.py-5').remove();
             });
@@ -199,33 +222,78 @@
             $('#itemsTable').on('click', '.remove-row', function () {
                 $(this).closest('tr').remove();
                 reindexRows();
-                
+
                 // Show empty state if no items
                 if ($('#itemsTable tbody tr').length === 0) {
                     $('#itemsTable tbody').append(`
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox display-4 d-block mb-2"></i>
-                                <p class="mb-0">No items added yet. Click "Add Item" to get started.</p>
-                            </td>
-                        </tr>
-                    `);
+                                                <tr>
+                                                    <td colspan="6" class="text-center py-5 text-muted">
+                                                        <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                                                        <p class="mb-0">No items added yet. Click "Add Item" to get started.</p>
+                                                    </td>
+                                                </tr>
+                                            `);
                 }
             });
 
             // Initialize with one row if empty
             if ($('#itemsTable tbody tr').length === 0) $('#addRow').click();
-            
+
             // Form validation
-            var form = document.getElementById('challanForm');
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
+            // var form = document.getElementById('challanForm');
+            // form.addEventListener('submit', function (event) {
+            //     if (!form.checkValidity()) {
+            //         event.preventDefault();
+            //         event.stopPropagation();
+            //     }
+            //     form.classList.add('was-validated');
+            // }, false);
+
+            // Add this to your Create.cshtml script section
+            $(document).ready(function () {
+                var form = $('#challanForm');
+
+                // Handle form submission
+                form.on('submit', function (e) {
+                    // Check validity using jQuery Validation
+                    if (!form.valid()) {
+                        // Form is invalid, don't proceed with submission styling
+                        return;
+                    }
+
+                    // Form is valid, show processing state
+                    $('button[type="submit"]')
+                        .prop('disabled', true)
+                        .html('<span class="spinner-border spinner-border-sm me-2"></span> Processing...');
+                });
+
+                // Reset button state if validation fails and user tries again
+                form.on('input change', 'input, select, textarea', function () {
+                    // If button is disabled but there are no validation errors, re-enable it
+                    if ($('button[type="submit"]').prop('disabled') && form.valid()) {
+                        $('button[type="submit"]')
+                            .prop('disabled', false)
+                            .html('<i class="bi bi-whatsapp me-1"></i> Save & Send WhatsApp');
+                    }
+                });
+            });
+
         })();
+
+        // Show success modal if there's a success message
+        $(document).ready(function () {
+        @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage as string))
+        {
+            <text>
+                    // Update modal message
+                    $('#modalMessage').text('@ViewBag.SuccessMessage');
+
+                // Show the modal
+                var myModal = new bootstrap.Modal(document.getElementById('successModal'));
+                myModal.show();
+            </text>
+        }
+                });
     </script>
 
     <style>
@@ -233,7 +301,7 @@
             border-radius: 0.75rem;
             overflow: hidden;
         }
-        
+
         .table th {
             border-top: none;
             font-weight: 600;
@@ -243,38 +311,35 @@
             color: #6c757d;
             background-color: #f8f9fa;
         }
-        
+
         .table td {
             border-color: #f1f3f7;
             padding: 0.75rem;
             vertical-align: middle;
         }
-        
+
         .btn {
             border-radius: 0.5rem;
             transition: all 0.2s;
         }
-        
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
+
+            .btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+
         .form-control, .form-select {
             border-radius: 0.5rem;
             transition: all 0.2s;
         }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-        }
-        
+
+            .form-control:focus, .form-select:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            }
+
         .input-group-text {
             border-radius: 0.5rem 0 0 0.5rem;
         }
-        
-        /* Mobile responsive styles */
-       
     </style>
 }

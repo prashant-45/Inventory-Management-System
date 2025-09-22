@@ -1,0 +1,14 @@
+<DeliveryChallan>
+  <Id>2059</Id>
+  <ChallanNo>CH-2025-002347</ChallanNo>
+  <ReceiverName>pk2</ReceiverName>
+  <ReceiverMobile>8765432345</ReceiverMobile>
+  <Date>2025-09-22T00:00:00</Date>
+  <createdByName>roy</createdByName>
+  <Items>
+    <Particular>yigus</Particular>
+    <ModelNo>2989</ModelNo>
+    <Quantity>1</Quantity>
+    <Remarks>sdjshdkjshdkjs</Remarks>
+  </Items>
+</DeliveryChallan>

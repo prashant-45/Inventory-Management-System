@@ -1,5 +1,6 @@
 ﻿using IMS.Data;
 using IMS.Models;
+using IMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,9 +16,41 @@ namespace IMS.Controllers
         }
 
         // Show list of users with permission management option
-        public async Task<IActionResult> ManagePermissions()
+        public async Task<IActionResult> ManagePermissions(int page = 1, int pageSize = 10, string searchTerm = "")
         {
-            var users = await _context.Users.ToListAsync();
+            // Query users with search filter
+            var query = _context.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(u =>
+                    u.UserName.Contains(searchTerm) ||
+                    u.Email.Contains(searchTerm) ||
+                    (u.MobileNumber != null && u.MobileNumber.Contains(searchTerm)));
+            }
+
+            // Get total count
+            var totalItems = await query.CountAsync();
+
+            // Apply pagination
+            var users = await query
+                .OrderBy(u => u.UserName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Create pagination info
+            var pagination = new PaginationInfo
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            // Pass data to view
+            ViewBag.Pagination = pagination;
+            ViewBag.SearchTerm = searchTerm;
+
             return View(users);
         }
 

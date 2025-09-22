@@ -1,4 +1,17 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿document.addEventListener("DOMContentLoaded", function () {
+    const menuBtn = document.querySelector(".menu-btn");
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.querySelector(".overlay");
 
-// Write your JavaScript code.
+    if (menuBtn && sidebar && overlay) {
+        menuBtn.addEventListener("click", function () {
+            sidebar.classList.toggle("show");
+            overlay.classList.toggle("active");
+        });
+
+        overlay.addEventListener("click", function () {
+            sidebar.classList.remove("show");
+            overlay.classList.remove("active");
+        });
+    }
+});

@@ -9,14 +9,22 @@
         var currentAct = routeData.Values["action"]?.ToString();
         return (currentCtrl == ctrl && currentAct == act) ? "active" : "";
     }
+    
+    string IsActiveGroup(string[] controllers)
+    {
+        var routeData = Context.GetRouteData();
+        var currentCtrl = routeData.Values["controller"]?.ToString();
+        return controllers.Contains(currentCtrl) ? "active-group" : "";
+    }
 }
+
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - IMS</title>
+    <title>@ViewData["Title"] - Inventory Management System</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -25,15 +33,247 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/IMS.styles.css" asp-append-version="true" />
 
+
     @await RenderSectionAsync("Styles", required: false)
 
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 70px;
+            --topbar-height: 70px;
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --light-bg: #f8f9fa;
+            --sidebar-bg: #2c3e50;
+            --sidebar-hover: #34495e;
+            --text-light: #ecf0f1;
+            --text-muted: #bdc3c7;
+            --transition: all 0.3s ease;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            color: var(--text-light);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 1200; /* lower than overlay */
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--sidebar-hover);
+            border-radius: 3px;
+        }
+
+        .brand {
+            padding: 1.5rem 1.25rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            background: rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .brand-logo {
+            max-width: 70px;
+            height: auto;
+            border-radius: 35px;
+        }
+
+        .brand-text {
+            font-size: 1rem;
+            line-height: 1.3;
+            margin-top: 5px;
+        }
+
+        .nav {
+            padding: 0 0.5rem;
+        }
+
+        .nav-group {
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .nav-link {
+            color: var(--text-light);
+            padding: 0.85rem 1rem;
+            margin: 0.15rem 0;
+            border-radius: 0.5rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--sidebar-hover);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .nav-link i {
+            width: 1.5rem;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Topbar Styles */
+        .topbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: var(--topbar-height);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .mobile-logo {
+            display: none;
+            max-height: 40px;
+            margin-right: 15px;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 2rem;
+            background: #f5f7fb;
+        }
+
+        /* Footer */
+        footer {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e9ecef;
+            margin-top: auto;
+        }
+
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1100; /* higher than sidebar */
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+            .overlay.active {
+                display: block;
+                opacity: 1;
+            }
+
+        /* Badge styles */
+        .badge {
+            font-size: 0.7em;
+            padding: 0.35em 0.65em;
+        }
+
+        /* Button styles */
+        .btn {
+            border-radius: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Custom scrollbar for main content */
+        main::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        main::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        main::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        .nav-link {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .nav-link:nth-child(1) { animation-delay: 0.1s; }
+        .nav-link:nth-child(2) { animation-delay: 0.2s; }
+        .nav-link:nth-child(3) { animation-delay: 0.3s; }
+        .nav-link:nth-child(4) { animation-delay: 0.4s; }
+        .nav-link:nth-child(5) { animation-delay: 0.5s; }
+        .nav-link:nth-child(6) { animation-delay: 0.6s; }
+
+       
+    </style>
 </head>
 <body>
     <div class="wrapper">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
-            <div class="brand">IMS</div>
+            <div class="brand">
+                <img src="~/images/kava.jpg" alt="KNN Home Theater | Home Automation" class="brand-logo" />
+                @* <div class="brand-text">KNN Home Theater | Home Automation</div> *@
+            </div>
             <nav class="nav flex-column">
                 <div class="nav-group">General</div>
 
@@ -74,7 +314,7 @@
 
                 @if (User.IsInRole("Admin"))
                 {
-                    <div class="nav-group">Admin</div>
+                    <div class="nav-group">Administration</div>
 
                     <a class="nav-link @IsActive("Admin", "ManagePermissions")" asp-controller="Admin" asp-action="ManagePermissions">
                         <i class="bi bi-shield-lock"></i> Manage Permissions
@@ -88,48 +328,64 @@
         </aside>
         <div class="overlay"></div>
 
+        <div id="loader" style="display:none;">
+            <div class="spinner"></div>
+        </div>
+
         <!-- Content Area -->
         <div class="content">
             <!-- Topbar -->
             <header class="topbar">
-                <div class="d-flex align-items-center">
-                    <!-- ✅ Sidebar Toggle for Mobile -->
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Sidebar Toggle for Mobile -->
                     <button class="btn btn-outline-secondary d-lg-none" id="sidebarToggle">
                         <i class="bi bi-list"></i>
                     </button>
-                    <span>@User.Identity.Name</span>
-
-                    <!-- Show Roles as Bootstrap badges -->
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        var roles = User.Claims
-                        .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
-                        .Select(c => c.Value)
-                        .ToList();
-
-                        if (roles.Any())
-                        {
-                            <div class="ms-2">
-                                @foreach (var role in roles)
+                    
+                    <!-- Mobile Logo (visible only on small screens) -->
+                    <img src="~/images/kava.jpg" alt="KNN" class="img-fluid mobile-logo" />
+                    
+                    <div class="d-flex align-items-center gap-2 topbar-user-info">
+                       @*  <div class="user-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                            @User.Identity.Name?[0].ToString().ToUpper()
+                        </div> *@
+                        <div class="topbar-user-details">
+                            <div class="fw-semibold">@User.Identity.Name</div>
+                            <div class="d-flex gap-1">
+                                @if (User.Identity.IsAuthenticated)
                                 {
-                                    <span class="badge bg-primary me-1">@role</span>
+                                    var roles = User.Claims
+                                    .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
+                                    .Select(c => c.Value)
+                                    .ToList();
+
+                                    if (roles.Any())
+                                    {
+                                        foreach (var role in roles)
+                                        {
+                                            <span class="badge bg-primary">@role</span>
+                                        }
+                                    }
                                 }
                             </div>
-                        }
-                    }
-
+                        </div>
+                    </div>
                 </div>
 
                 <div>
                     @if (User.Identity.IsAuthenticated)
                     {
                         <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-dark">Logout</button>
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right me-1"></i> Logout
+                            </button>
                         </form>
                     }
                     else
                     {
-                        <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-primary">Login</a>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                        </a>
                     }
                 </div>
             </header>
@@ -141,9 +397,9 @@
 
             <!-- Footer -->
             <footer>
-                <div class="container">
-                    &copy; 2025 - <strong>IMS</strong> |
-                    <a asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+                <div class="container text-center text-muted">
+                    &copy; 2025 - <strong>KNN Home Theater | Home Automation</strong> |
+                    <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Privacy Policy</a>
                 </div>
             </footer>
         </div>
@@ -159,19 +415,87 @@
             const sidebar = document.querySelector(".sidebar");
             const overlay = document.querySelector(".overlay");
             const toggleBtn = document.getElementById("sidebarToggle");
+            const content = document.querySelector(".content");
 
+            // Toggle sidebar on mobile
             toggleBtn.addEventListener("click", function () {
                 sidebar.classList.toggle("show");
                 overlay.classList.toggle("active");
+                document.body.style.overflow = sidebar.classList.contains("show") ? "hidden" : "";
             });
 
+            // Close sidebar when clicking overlay
             overlay.addEventListener("click", function () {
                 sidebar.classList.remove("show");
                 overlay.classList.remove("active");
+                document.body.style.overflow = "";
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener("click", function (e) {
+                if (window.innerWidth < 992 && 
+                    !sidebar.contains(e.target) && 
+                    !toggleBtn.contains(e.target) && 
+                    sidebar.classList.contains("show")) {
+                    sidebar.classList.remove("show");
+                    overlay.classList.remove("active");
+                    document.body.style.overflow = "";
+                }
+            });
+
+            // Prevent body scroll when sidebar is open on mobile
+            sidebar.addEventListener("touchmove", function (e) {
+                if (window.innerWidth < 992) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // Add smooth scrolling to main content
+            const mainContent = document.querySelector("main");
+            if (mainContent) {
+                mainContent.style.scrollBehavior = "smooth";
+            }
+
+            // Handle browser resize
+            window.addEventListener("resize", function () {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.remove("show");
+                    overlay.classList.remove("active");
+                    document.body.style.overflow = "";
+                }
             });
         });
+
+
+
+
+        // Hide loader when page finishes loading
+        window.onload = function () {
+            document.getElementById("loader").style.display = "none";
+        };
+
     </script>
 
+
+    @* <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var form = document.getElementById("challanForm");
+            var loader = document.getElementById("loader");
+
+            form.addEventListener("submit", function (e) {
+                // Check validity using the HTML5 API
+                if (!form.checkValidity()) {
+                    e.preventDefault();      // stop form submission
+                    e.stopPropagation();     // stop bubbling
+                    form.classList.add("was-validated"); // Bootstrap styling
+                    return false;            // ❌ don't show loader
+                }
+
+                // ✅ Only show loader if valid
+                loader.style.display = "flex";
+            });
+        });
+    </script> *@
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
