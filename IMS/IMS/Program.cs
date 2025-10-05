@@ -27,6 +27,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IDeliveryChallanRepository, DeliveryChallanRepository>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IChallanPdfService, ChallanPdfService>();
 builder.Services.AddSingleton<IWhatsAppService, WhatsAppService>();
 

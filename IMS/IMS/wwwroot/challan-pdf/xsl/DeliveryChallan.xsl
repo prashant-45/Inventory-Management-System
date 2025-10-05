@@ -16,27 +16,46 @@
 					color: #333;
 					}
 					.header {
-					text-align: center;
+					display: flex; /* horizontal layout */
+					align-items: center; /* vertical center */
+					justify-content: space-between; /* space between logo and text */
 					margin-bottom: 20px;
 					border-bottom: 2px solid #2c3e50;
 					padding-bottom: 15px;
 					}
-					.logo {
-					max-width: 180px;
-					height: auto;
-					margin-bottom: 10px;
+
+					.header-text {
+					display: flex;
+					flex-direction: column; /* stack title and subtitle vertically */
+					margin-left: 15px; /* spacing from logo */
 					}
-					h2 {
+
+					.logo {
+					max-width: 120px; /* adjust as needed */
+					height: auto;
+					}
+					
+					<!--h2 {
 					text-align: center;
 					color: #2c3e50;
 					margin: 10px 0 5px 0;
 					font-size: 24px;
+					}-->
+					h2 {
+					color: #2c3e50;
+					font-size: 24px;
+					margin: 0;
 					}
-					.subtitle {
+					<!--.subtitle {
 					text-align: center;
 					color: #7f8c8d;
 					font-size: 14px;
 					margin-bottom: 15px;
+					}-->
+					.subtitle {
+					color: #7f8c8d;
+					font-size: 14px;
+					margin: 0;
 					}
 					.details-container {
 					display: table;
@@ -126,9 +145,12 @@
 			<body>
 				<div class="header">
 					<img class="logo" src="/images/kava.jpg" alt="Company Logo" />
-					<h2>DELIVERY CHALLAN</h2>
-					<div class="subtitle">COMFORT ON YOUR FINGER TIPS</div>
+					<div class="header-text">
+						<h2>DELIVERY CHALLAN</h2>
+						<div class="subtitle">COMFORT ON YOUR FINGER TIPS</div>
+					</div>
 				</div>
+
 
 				<div class="details-container">
 					<div class="detail-card">
@@ -163,18 +185,18 @@
 								<strong>Date:</strong>
 								<xsl:value-of select="substring(DeliveryChallan/Date, 1, 10)" />
 							</div>
-							<div class="detail-item">
+							<!--<div class="detail-item">
 								<strong>Waybill No:</strong>
 								[Waybill Not Provided]
-							</div>
+							</div>-->
 							<div class="detail-item">
 								<strong>Booking Date:</strong>
 								[Booking Date Not Provided]
 							</div>
-							<div class="detail-item">
+							<!--<div class="detail-item">
 								<strong>P.O. No:</strong>
 								[PO Number Not Provided]
-							</div>
+							</div>-->
 						</div>
 					</div>
 				</div>

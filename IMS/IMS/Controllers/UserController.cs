@@ -1,6 +1,12 @@
-﻿using IMS.Repositories;
+﻿using IMS.Models;
+using IMS.Repositories;
+using IMS.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using System.Security.Claims;
 
 [Authorize]
@@ -13,12 +19,70 @@ public class UserController : Controller
         _userRepo = userService;
     }
 
-    public IActionResult Profile()
+    public IActionResult Profile(int? Id)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var userId = Id > 0 ? Id : int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         var user = _userRepo.GetUserByUserId(userId); // get user details from DB
 
         return View(user);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        var model = new CreateUserViewModel
+        {
+            Roles = await _userRepo.GetAllRolesAsync()
+        };
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CreateUserViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            model.Roles = await _userRepo.GetAllRolesAsync();
+            return View(model);
+        }
+
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+        // Pass the model to repository, PasswordHasher will handle hashing
+        await _userRepo.CreateUserAsync(model, createdBy: userId);
+
+        TempData["Success"] = "User created successfully!";
+        return RedirectToAction("ManagePermissions", "Admin");
+    }
+
+
+    [HttpGet]
+    public IActionResult ForgotPassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult ForgotPassword(ForgotPasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = _userRepo.GetUserByUsername(model.UserName);
+        if (user == null)
+        {
+            ModelState.AddModelError("", "User not found.");
+            return View(model);
+        }
+
+        _userRepo.UpdatePassword(user.Id, model.NewPassword); // hashing handled inside repo
+
+        TempData["Success"] = "Password updated successfully! You can now login.";
+        return RedirectToAction("Login", "Account");
     }
 
     [HttpPost]

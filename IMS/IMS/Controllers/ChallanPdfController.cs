@@ -25,12 +25,12 @@ namespace IMS.Controllers
             _whatsAppService = whatsAppService;
         }
 
-        [HttpGet("download-pdf/{challanId}")]
-        public IActionResult DownloadPdf(int challanId)
+        [HttpGet("download-pdf/{challanNo}")]
+        public IActionResult DownloadPdf(string challanNo)
         {
             try
             {
-                var pdfPath = _whatsAppService.GeneratePdfDownloadLink(challanId);//Path.Combine(_env.WebRootPath, "challan-pdf", "pdf", $"Challan_{challanId}.pdf");
+                var pdfPath = _whatsAppService.GeneratePdfDownloadLink(challanNo);//Path.Combine(_env.WebRootPath, "challan-pdf", "pdf", $"Challan_{challanId}.pdf");
 
                 if (!System.IO.File.Exists(pdfPath))
                 {
@@ -38,7 +38,7 @@ namespace IMS.Controllers
                 }
 
                 var fileBytes = System.IO.File.ReadAllBytes(pdfPath);
-                return File(fileBytes, "application/pdf", $"DeliveryChallan_{challanId}.pdf");
+                return File(fileBytes, "application/pdf", $"DeliveryChallan_{challanNo}.pdf");
             }
             catch (Exception ex)
             {

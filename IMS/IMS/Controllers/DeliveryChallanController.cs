@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using IMS.Data;
+using IMS.Models.DTO;
 using IMS.Repositories.Interfaces;
+using IMS.Services;
 using IMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +15,13 @@ namespace IMS.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IDeliveryChallanRepository _deliveryChallanRepo;
+        private readonly IChallanPdfService _challanPdf;
 
-        public DeliveryChallanController(IMapper mapper, IDeliveryChallanRepository deliveryChallanRepo)
+        public DeliveryChallanController(IMapper mapper, IDeliveryChallanRepository deliveryChallanRepo,IChallanPdfService challanPdfService)
         {
             _mapper = mapper;
             _deliveryChallanRepo = deliveryChallanRepo;
+            _challanPdf = challanPdfService;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string searchTerm = "")
@@ -78,6 +82,16 @@ namespace IMS.Controllers
                 model.createdByName = userName;
                 model.createdBy = Convert.ToInt32(userId);
                 var challan = await _deliveryChallanRepo.CreateAsync(model);
+
+                // 2️⃣ Generate PDF (outside transaction)
+                var challanDto = _mapper.Map<DeliveryChallanDto>(challan);
+                //dto.createdByName = createdByName;
+                var pdfPath = await _challanPdf.GenerateChallanPdfAsync(challanDto);
+                string pdfUrl = _challanPdf.GetPublicPdfUrl(pdfPath);
+
+                // Enqueue WhatsApp message with link
+                await _deliveryChallanRepo.EnqueueWhatsAppMessageAsync(challan, pdfUrl);
+
 
                 TempData["SuccessMessage"] = $"Challan #{challan.ChallanNo} created successfully! ✅";
                 return RedirectToAction(nameof(Index));

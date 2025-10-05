@@ -14,7 +14,7 @@
         public interface IWhatsAppService
         {
             string FormatPhoneNumber(string phoneNumber);
-            string GeneratePdfDownloadLink(int challanId);
+            string GeneratePdfDownloadLink(string ChallanNo);
             Task<WhatsAppSendResult> SendWhatsAppMessageAsync(WhatsAppQueue message);
         }
 
@@ -64,18 +64,18 @@
                 return digitsOnly;
             }
 
-            public string GeneratePdfDownloadLink(int challanId)
+            public string GeneratePdfDownloadLink(string ChallanNo)
             {
                 // For development, use localhost
                 if (_configuration["ASPNETCORE_ENVIRONMENT"] == "Development")
                 {
                     var port = _configuration["ASPNETCORE_URLS"]?.Split(':').Last()?.Split('/').First() ?? "5000";
-                    return $"http://localhost:{port}/api/challan/download-pdf/Challan_{challanId}.pdf";
+                    return $"http://localhost:{port}/api/challan/download-pdf/Challan_{ChallanNo}.pdf";
                 }
 
                 // For production, use configured domain
                 var domain = _configuration["AppSettings:Domain"] ?? "https://yourdomain.com";
-                return $"{domain}/api/challan/download-pdf/Challan_{challanId}.pdf";
+                return $"{domain}/api/challan/download-pdf/Challan_{ChallanNo}.pdf";
             }
 
             public async Task<WhatsAppSendResult> SendWhatsAppMessageAsync(WhatsAppQueue msg)
@@ -102,7 +102,7 @@
                         };
                     }
 
-                    var pdfDownloadLink = GeneratePdfDownloadLink(challan.Id);
+                    var pdfDownloadLink = GeneratePdfDownloadLink(challan.ChallanNo);
 
                     using var client = new HttpClient();
                     var phoneNumberId = _configuration["WhatsApp:PhoneNumberId"] ?? "729036183634205";

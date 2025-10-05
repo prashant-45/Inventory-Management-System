@@ -12,7 +12,7 @@
             <h2 class="text-primary mb-2"><i class="bi bi-people-fill me-2"></i>User Management</h2>
             <p class="text-muted mb-0">Manage user permissions and access levels</p>
         </div>
-        <a asp-controller="Users" asp-action="Create" class="btn btn-primary">
+        <a asp-controller="User" asp-action="Create" class="btn btn-primary">
             <i class="bi bi-plus-circle me-1"></i> Add New User
         </a>
     </div>
@@ -108,12 +108,26 @@
                                         }
                                     </td>
                                     <td class="text-center pe-4" data-label="Actions">
-                                        <a class="btn btn-sm btn-outline-primary"
-                                           asp-action="EditPermissions"
-                                           asp-route-userId="@user.Id">
-                                            <i class="bi bi-shield-lock me-1"></i> Permissions
-                                        </a>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <!-- 👁 View Profile -->
+                                            <a class="btn btn-sm btn-outline-info"
+                                               asp-controller="User"
+                                               asp-action="Profile"
+                                               asp-route-id="@user.Id"
+                                               title="View Profile">
+                                                <i class="bi bi-person-lines-fill me-1"></i> Profile
+                                            </a>
+
+                                            <!-- 🔒 Manage Permissions -->
+                                            <a class="btn btn-sm btn-outline-primary"
+                                               asp-action="EditPermissions"
+                                               asp-route-userId="@user.Id"
+                                               title="Manage Permissions">
+                                                <i class="bi bi-shield-lock me-1"></i> Permissions
+                                            </a>
+                                        </div>
                                     </td>
+
                                 </tr>
                             }
                         }

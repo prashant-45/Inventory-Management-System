@@ -11,24 +11,30 @@ namespace IMS.Services
     public interface IChallanPdfService
     {
         Task<string> GenerateChallanPdfAsync(DeliveryChallanDto challan);
+
+        string GetPublicPdfUrl(string pdfFilePath);
+
     }
 
     public class ChallanPdfService : IChallanPdfService
     {
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<ChallanPdfService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ChallanPdfService(IWebHostEnvironment env, ILogger<ChallanPdfService> logger)
+
+        public ChallanPdfService(IWebHostEnvironment env, ILogger<ChallanPdfService> logger, IHttpContextAccessor httpContextAccessor)
         {
             _env = env;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<string> GenerateChallanPdfAsync(DeliveryChallanDto challan)
         {
             try
             {
-                _logger.LogInformation($"Starting PDF generation for challan ID: {challan.Id}");
+                _logger.LogInformation($"Starting PDF generation for challan ID: {challan.ChallanNo}");
 
                 var rootPath = Path.Combine(_env.WebRootPath, "challan-pdf");
                 var xmlDir = Path.Combine(rootPath, "xml");
@@ -41,13 +47,13 @@ namespace IMS.Services
                 Directory.CreateDirectory(pdfDir);
 
                 // 1️⃣ Convert DTO to XML and save
-                var xmlPath = Path.Combine(xmlDir, $"Challan_{challan.Id}.xml");
+                var xmlPath = Path.Combine(xmlDir, $"Challan_{challan.ChallanNo}.xml");
                 string xmlString = ConvertToXml(challan, "DeliveryChallan");
                 await File.WriteAllTextAsync(xmlPath, xmlString);
                 _logger.LogInformation($"XML saved at: {xmlPath}");
 
                 // 2️⃣ Transform XML → HTML using XSLT
-                var htmlPath = Path.Combine(xmlDir, $"Challan_{challan.Id}.html");
+                var htmlPath = Path.Combine(xmlDir, $"Challan_{challan.ChallanNo}.html");
                 var xslPath = Path.Combine(xslDir, "DeliveryChallan.xsl");
 
                 if (!File.Exists(xslPath))
@@ -66,8 +72,17 @@ namespace IMS.Services
                 _logger.LogInformation($"HTML generated at: {htmlPath}");
 
                 // 3️⃣ Convert HTML → PDF using SelectPdf
-                var pdfPath = Path.Combine(pdfDir, $"Challan_{challan.Id}.pdf");
+                var pdfPath = Path.Combine(pdfDir, $"Challan_{challan.ChallanNo}.pdf");
                 string htmlContent = await File.ReadAllTextAsync(htmlPath);
+
+                // Convert logo to Base64
+                var logoPath = Path.Combine(_env.WebRootPath, "images", "kava.jpg");
+                var logoBytes = await File.ReadAllBytesAsync(logoPath);
+                var base64Logo = Convert.ToBase64String(logoBytes);
+
+                // Replace src="/images/kava.jpg" with Base64
+                htmlContent = htmlContent.Replace("/images/kava.jpg", $"data:image/jpeg;base64,{base64Logo}");
+
 
                 // Create PDF converter
                 var converter = new HtmlToPdf();
@@ -111,6 +126,20 @@ namespace IMS.Services
                 _logger.LogError(ex, "Error converting object to XML");
                 throw;
             }
+        }
+
+        public string GetPublicPdfUrl(string pdfFilePath)
+        {
+            // Example: pdfFilePath = "wwwroot/pdfs/challan_123.pdf"
+            // Convert to URL: https://yourdomain.com/pdfs/challan_123.pdf
+
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            // Remove wwwroot from path for public URL
+            var relativePath = pdfFilePath.Replace(_env.WebRootPath, "").Replace("\\", "/");
+
+            return $"{baseUrl}{relativePath}";
         }
     }
 }

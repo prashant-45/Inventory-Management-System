@@ -1,4 +1,5 @@
-﻿using IMS.Data;
+﻿using AutoMapper;
+using IMS.Data;
 using IMS.Models;
 using IMS.Models.DTO;
 using IMS.Repositories.Interfaces;
@@ -15,73 +16,99 @@ namespace IMS.Repositories
         private readonly ApplicationDbContext _context;
         private readonly IChallanPdfService _challanPdf;
         private readonly IWhatsAppService _whatsAppService;
+        private readonly IMapper _mapper;
 
 
-        public DeliveryChallanRepository(ApplicationDbContext context, IChallanPdfService challanPdf, IWhatsAppService whatsAppService)
+        public DeliveryChallanRepository(ApplicationDbContext context, IChallanPdfService challanPdf, IWhatsAppService whatsAppService, IMapper mapper)
         {
             _context = context;
             _challanPdf = challanPdf;
             _whatsAppService = whatsAppService;
+            _mapper = mapper;
         }
+
+        //public async Task<DeliveryChallan> CreateAsync(DeliveryChallanViewModel model)
+        //{
+        //    using var transaction = await _context.Database.BeginTransactionAsync();
+
+        //    try
+        //    {
+        //        var challan = new DeliveryChallan
+        //        {
+        //            Date = model.Date,
+        //            ReceiverName = model.ReceiverName,
+        //            ReceiverMobile = model.ReceiverPhone,
+        //            ChallanNo = model.ChallanNumber,
+        //            createdBy= (int)model.createdBy,
+        //            Items = model.Items.Select(i => new DeliveryChallanItem
+        //            {
+        //                Particular = i.Particulars,
+        //                ModelNo = i.ModelNo,
+        //                Quantity = i.Quantity,
+        //                Remarks = i.Remarks,
+        //                //Unit = i.UOM
+        //            }).ToList()
+        //        };
+
+        //        _context.DeliveryChallans.Add(challan);
+        //        await _context.SaveChangesAsync();
+
+
+
+        //        var challanDto = new DeliveryChallanDto
+        //        {
+        //            Id = challan.Id,
+        //            ChallanNo = challan.ChallanNo,
+        //            ReceiverName = challan.ReceiverName,
+        //            ReceiverMobile = challan.ReceiverMobile,
+        //            Date = challan.Date,
+        //            createdByName=model.createdByName,
+        //            Items = challan.Items.Select(i => new DeliveryChallanItemDto
+        //            {
+        //                Particular = i.Particular,
+        //                ModelNo = i.ModelNo,
+        //                Quantity = i.Quantity,
+        //                Remarks = i.Remarks
+        //            }).ToList()
+        //        };
+        //        //🔹 Generate PDF here
+        //        var pdfPath = await _challanPdf.GenerateChallanPdfAsync(challanDto);
+
+
+        //        var queueMessage = new WhatsAppQueue
+        //        {
+        //            FkChallanId = challan.Id,
+        //            MobileNumber = _whatsAppService.FormatPhoneNumber(challan.ReceiverMobile),
+        //            Message = $"Hello {challan.ReceiverName}, your Delivery Challan {challan.ChallanNo} has been created.",
+        //            Status = "PENDING",
+        //            CreatedAt = DateTime.UtcNow
+        //        };
+
+        //        _context.WhatsappMessageQueue.Add(queueMessage);
+        //        await _context.SaveChangesAsync();
+
+        //        await transaction.CommitAsync();
+        //        return challan;
+        //    }
+        //    catch
+        //    {
+        //        await transaction.RollbackAsync();
+        //        throw;
+        //    }
+        //}
 
         public async Task<DeliveryChallan> CreateAsync(DeliveryChallanViewModel model)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
-
             try
             {
-                var challan = new DeliveryChallan
-                {
-                    Date = model.Date,
-                    ReceiverName = model.ReceiverName,
-                    ReceiverMobile = model.ReceiverPhone,
-                    ChallanNo = model.ChallanNumber,
-                    createdBy= (int)model.createdBy,
-                    Items = model.Items.Select(i => new DeliveryChallanItem
-                    {
-                        Particular = i.Particulars,
-                        ModelNo = i.ModelNo,
-                        Quantity = i.Quantity,
-                        Remarks = i.Remarks,
-                        //Unit = i.UOM
-                    }).ToList()
-                };
+                // Map ViewModel -> Entity
+                var challan = _mapper.Map<DeliveryChallan>(model);
+                challan.createdBy = (int)model.createdBy;
+                // Optionally, set other fields like CreatedAt
+                // challan.CreatedAt = DateTime.UtcNow;
 
                 _context.DeliveryChallans.Add(challan);
-                await _context.SaveChangesAsync();
-
-
-
-                var challanDto = new DeliveryChallanDto
-                {
-                    Id = challan.Id,
-                    ChallanNo = challan.ChallanNo,
-                    ReceiverName = challan.ReceiverName,
-                    ReceiverMobile = challan.ReceiverMobile,
-                    Date = challan.Date,
-                    createdByName=model.createdByName,
-                    Items = challan.Items.Select(i => new DeliveryChallanItemDto
-                    {
-                        Particular = i.Particular,
-                        ModelNo = i.ModelNo,
-                        Quantity = i.Quantity,
-                        Remarks = i.Remarks
-                    }).ToList()
-                };
-                //🔹 Generate PDF here
-                var pdfPath = await _challanPdf.GenerateChallanPdfAsync(challanDto);
-
-
-                var queueMessage = new WhatsAppQueue
-                {
-                    FkChallanId = challan.Id,
-                    MobileNumber = _whatsAppService.FormatPhoneNumber(challan.ReceiverMobile),
-                    Message = $"Hello {challan.ReceiverName}, your Delivery Challan {challan.ChallanNo} has been created.",
-                    Status = "PENDING",
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                _context.WhatsappMessageQueue.Add(queueMessage);
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -93,6 +120,28 @@ namespace IMS.Repositories
                 throw;
             }
         }
+
+        public async Task EnqueueWhatsAppMessageAsync(DeliveryChallan challan, string pdfUrl)
+        {
+            if (string.IsNullOrWhiteSpace(challan.ReceiverMobile))
+                return; // skip if no mobile number
+
+            var queueMessage = new WhatsAppQueue
+            {
+                FkChallanId = challan.Id,
+                MobileNumber = _whatsAppService.FormatPhoneNumber(challan.ReceiverMobile),
+                Message = $"Hello {challan.ReceiverName},\n\n" +
+                          $"Thanks for choosing KAVA | Home Automation | Home Theatre | Security & more.\n\n" +
+                          $"Please click the link below to download your delivery receipt for the delivered waybill(s):\n{pdfUrl}\n\n" +
+                          $"We appreciate your trust and business!",
+                Status = "PENDING",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.WhatsappMessageQueue.Add(queueMessage);
+            await _context.SaveChangesAsync();
+        }
+
 
         public async Task<bool> DeleteAsync(int id)
         {
@@ -112,7 +161,7 @@ namespace IMS.Repositories
 
 
         public async Task<(IEnumerable<DeliveryChallanViewModel> Challans, int TotalItems)>
-     GetChallansAsync(int page, int pageSize, int userId, string searchTerm = "",string role="")
+     GetChallansAsync(int page, int pageSize, int userId, string searchTerm = "", string role = "")
         {
             var query = _context.DeliveryChallans
                 .Include(c => c.Items)

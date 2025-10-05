@@ -284,19 +284,19 @@
                     </a>
                 }
 
-                @if (PermissionHelper.HasPermission("AddInventory") || PermissionHelper.HasPermission("UpdateInventory"))
+               @*  @if (PermissionHelper.HasPermission("AddInventory") || PermissionHelper.HasPermission("UpdateInventory"))
                 {
                     <a class="nav-link @IsActive("Inventory")" asp-controller="Inventory" asp-action="Index">
                         <i class="bi bi-box-seam"></i> Inventory
                     </a>
-                }
+                } *@
 
-                @if (PermissionHelper.HasPermission("CreateOrder") || PermissionHelper.HasPermission("ApproveOrder"))
+               @*  @if (PermissionHelper.HasPermission("CreateOrder") || PermissionHelper.HasPermission("ApproveOrder"))
                 {
                     <a class="nav-link @IsActive("Sales")" asp-controller="Sales" asp-action="Index">
                         <i class="bi bi-cart-check"></i> Sales
                     </a>
-                }
+                } *@
 
                 @if (PermissionHelper.HasPermission("AddDeliveryChallan") || PermissionHelper.HasPermission("ViewDeliveryChallan"))
                 {
@@ -305,13 +305,13 @@
                     </a>
                 }
 
-                @if (User.IsInRole("Admin"))
+               @*  @if (User.IsInRole("Admin"))
                 {
                     <a class="nav-link @IsActive("Users")" asp-controller="Users" asp-action="Index">
                         <i class="bi bi-people"></i> Users
                     </a>
                 }
-
+ *@
                 @if (User.IsInRole("Admin"))
                 {
                     <div class="nav-group">Administration</div>
@@ -320,9 +320,9 @@
                         <i class="bi bi-shield-lock"></i> Manage Permissions
                     </a>
 
-                    <a class="nav-link @IsActive("Admin", "ManageRoles")" asp-controller="Admin" asp-action="ManageRoles">
+                   @*  <a class="nav-link @IsActive("Admin", "ManageRoles")" asp-controller="Admin" asp-action="ManageRoles">
                         <i class="bi bi-diagram-3"></i> Manage Roles
-                    </a>
+                    </a> *@
                 }
             </nav>
         </aside>
