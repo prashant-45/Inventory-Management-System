@@ -31,10 +31,11 @@
 					}
 
 					.logo {
-					max-width: 120px; /* adjust as needed */
+					width: 240px; /* Increase width as needed */
 					height: auto;
+					margin-right: 20px;
 					}
-					
+
 					<!--h2 {
 					text-align: center;
 					color: #2c3e50;
@@ -147,7 +148,7 @@
 					<img class="logo" src="/images/kava.jpg" alt="Company Logo" />
 					<div class="header-text">
 						<h2>DELIVERY CHALLAN</h2>
-						<div class="subtitle">COMFORT ON YOUR FINGER TIPS</div>
+						<!--<div class="subtitle">COMFORT ON YOUR FINGER TIPS</div>-->
 					</div>
 				</div>
 
@@ -164,14 +165,14 @@
 								<strong>Contact:</strong>
 								<xsl:value-of select="DeliveryChallan/ReceiverMobile" />
 							</div>
-							<div class="detail-item">
+							<!--<div class="detail-item">
 								<strong>Address:</strong>
 								[Address Not Provided]
 							</div>
 							<div class="detail-item">
 								<strong>GSTN:</strong>
 								[GSTN Not Provided]
-							</div>
+							</div>-->
 						</div>
 					</div>
 					<div class="detail-card">
@@ -189,10 +190,10 @@
 								<strong>Waybill No:</strong>
 								[Waybill Not Provided]
 							</div>-->
-							<div class="detail-item">
+							<!--<div class="detail-item">
 								<strong>Booking Date:</strong>
 								[Booking Date Not Provided]
-							</div>
+							</div>-->
 							<!--<div class="detail-item">
 								<strong>P.O. No:</strong>
 								[PO Number Not Provided]
@@ -261,9 +262,11 @@
 				</div>
 
 				<div class="footer">
-					ST FLOOR, E-106, MAHIMA FLORENZA, PATHAKAN COLONY, MANSAROVSKE EXT., Jaipur, Rajasthan, 302030
+					Thank you for trusting us.
 					<br />
-					Phone: +91-9528959553 | Email: info@hochstandard.com
+					ST FLOOR, E-104, MAHIMA FLORENZA, PATRAKAR COLONY, MANSAROVAR EXT., Jaipur, Rajasthan, 302030
+					<br />
+					Phone: +91-9529595953 | Email: info@hochstandard.com
 				</div>
 			</body>
 		</html>
