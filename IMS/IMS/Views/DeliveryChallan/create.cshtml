@@ -282,17 +282,23 @@
 
         // Show success modal if there's a success message
         $(document).ready(function () {
-        @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage as string))
-        {
-            <text>
-                    // Update modal message
-                    $('#modalMessage').text('@ViewBag.SuccessMessage');
+        // @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage as string))
+        // {
+        //     <text>
+        //             // Update modal message
+        //             $('#modalMessage').text('@ViewBag.SuccessMessage');
 
-                // Show the modal
-                var myModal = new bootstrap.Modal(document.getElementById('successModal'));
-                myModal.show();
-            </text>
-        }
+        //         // Show the modal
+        //         var myModal = new bootstrap.Modal(document.getElementById('successModal'));
+        //         myModal.show();
+        //     </text>
+        // }
+                @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage as string))
+                    {
+                    <text>
+                        toastr.success('@ViewBag.SuccessMessage', 'Success', { timeOut: 3000, closeButton: true, progressBar: true });
+                    </text>
+                    }
                 });
     </script>
 

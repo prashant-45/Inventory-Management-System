@@ -8,6 +8,7 @@ using IMS.Services.IMS.Services;
 //using IMS.Services.pdf;
 using IMS.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace IMS.Repositories
 {
@@ -161,7 +162,7 @@ namespace IMS.Repositories
 
 
         public async Task<(IEnumerable<DeliveryChallanViewModel> Challans, int TotalItems)>
-     GetChallansAsync(int page, int pageSize, int userId, string searchTerm = "", string role = "")
+     GetChallansAsync(int? page, int? pageSize, int userId, string searchTerm = "", string role = "")
         {
             var query = _context.DeliveryChallans
                 .Include(c => c.Items)
@@ -188,8 +189,8 @@ namespace IMS.Repositories
 
             var challans = await query
                 .OrderByDescending(c => c.Date)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((int)((page - 1) * pageSize))
+                .Take((int)pageSize)
                 .Select(c => new DeliveryChallanViewModel
                 {
                     Id = c.Id,
@@ -248,34 +249,34 @@ namespace IMS.Repositories
                 .ToListAsync();
 
             // Update or add
-            //foreach (var itemVm in items)
-            //{
-            //    if (itemVm.Id == 0)
-            //    {
-            //        // New item
-            //        var newItem = new DeliveryChallanItem
-            //        {
-            //            Fk_deliveryChallanId = challan.Id,
-            //            ModelNo = itemVm.ModelNo,
-            //            Particular = itemVm.Particulars,
-            //            Quantity = itemVm.Quantity ?? 1,
-            //            Remarks = itemVm.Remarks
-            //        };
-            //        _context.DeliveryChallanItems.Add(newItem);
-            //    }
-            //    else
-            //    {
-            //        // Existing item
-            //        var existing = existingItems.FirstOrDefault(i => i.Id == itemVm.Id);
-            //        if (existing != null)
-            //        {
-            //            existing.ModelNo = itemVm.ModelNo;
-            //            existing.Particular = itemVm.Particulars;
-            //            existing.Quantity = itemVm.Quantity ?? 1;
-            //            existing.Remarks = itemVm.Remarks;
-            //        }
-            //    }
-            //}
+            foreach (var itemVm in items)
+            {
+                if (itemVm.Id == 0)
+                {
+                    // New item
+                    var newItem = new DeliveryChallanItem
+                    {
+                        Fk_deliveryChallanId = challan.Id,
+                        ModelNo = itemVm.ModelNo,
+                        Particular = itemVm.Particulars,
+                        Quantity = itemVm.Quantity ?? 1,
+                        Remarks = itemVm.Remarks
+                    };
+                    _context.DeliveryChallanItems.Add(newItem);
+                }
+                else
+                {
+                    // Existing item
+                    var existing = existingItems.FirstOrDefault(i => i.Id == itemVm.Id);
+                    if (existing != null)
+                    {
+                        existing.ModelNo = itemVm.ModelNo;
+                        existing.Particular = itemVm.Particulars;
+                        existing.Quantity = itemVm.Quantity ?? 1;
+                        existing.Remarks = itemVm.Remarks;
+                    }
+                }
+            }
 
             // Remove deleted
             var itemIds = items.Select(i => i.Id).ToList();

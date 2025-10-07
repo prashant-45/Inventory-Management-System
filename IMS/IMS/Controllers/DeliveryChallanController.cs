@@ -24,7 +24,7 @@ namespace IMS.Controllers
             _challanPdf = challanPdfService;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string searchTerm = "")
+        public async Task<IActionResult> Index(int? page = 1, int? pageSize = 10, string? searchTerm = "")
         {
             // Call repo method (already handles paging + search)
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
@@ -39,14 +39,18 @@ namespace IMS.Controllers
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalItems = totalItems;
             ViewBag.StartRecord = (page - 1) * pageSize + 1;
-            ViewBag.EndRecord = Math.Min(page * pageSize, totalItems);
+            ViewBag.EndRecord = Math.Min((byte)(page * pageSize), totalItems);
             ViewBag.SearchTerm = searchTerm;
 
-            //TempData["SuccessMessage"] = $"Challan created successfully! ✅";
+            // ✅ Pass success message to view
+            if (TempData["SuccessMessage"] != null)
+                ViewBag.SuccessMessage = TempData["SuccessMessage"].ToString();
+
             return View(challans);
         }
 
         // GET: DeliveryChallan/Create
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
             var challanNo = await _deliveryChallanRepo.GenerateChallanNumberAsync(); // system generated
@@ -150,14 +154,26 @@ namespace IMS.Controllers
             }
 
             // Map scalar props (challan header)
-            _mapper.Map(model, entity);
+            //_mapper.Map(model, entity);
 
             try
             {
                 // Let repo handle updating child items
                 await _deliveryChallanRepo.UpdateAsync(entity, model.Items);
-                TempData["Success"] = "✅ Delivery Challan updated successfully!";
 
+                // 2️⃣ Generate PDF (outside transaction)
+                var challanDto = _mapper.Map<DeliveryChallanDto>(entity);
+                //dto.createdByName = createdByName;
+                var pdfPath = await _challanPdf.GenerateChallanPdfAsync(challanDto);
+                string pdfUrl = _challanPdf.GetPublicPdfUrl(pdfPath);
+
+                // Enqueue WhatsApp message with link
+                await _deliveryChallanRepo.EnqueueWhatsAppMessageAsync(entity, pdfUrl);
+
+                // Store message in TempData so it survives redirect
+                TempData["SuccessMessage"] = "✅ Delivery Challan updated successfully!";
+
+                // Redirect to Index (listing/entry page)
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
@@ -167,8 +183,8 @@ namespace IMS.Controllers
                     return NotFound();
                 }
                 ModelState.AddModelError("", "Unable to update record.");
+                return View(model);
             }
-            return View(model);
 
         }
 

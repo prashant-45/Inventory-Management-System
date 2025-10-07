@@ -234,13 +234,13 @@
 
             // Form validation
             var form = document.getElementById('challanForm');
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
+            // form.addEventListener('submit', function(event) {
+            //     if (!form.checkValidity()) {
+            //         event.preventDefault();
+            //         event.stopPropagation();
+            //     }
+            //     form.classList.add('was-validated');
+            // }, false);
             
             // Initialize item count
             updateItemCount();

@@ -13,7 +13,7 @@ namespace IMS.Repositories.Interfaces
         Task<bool> DeleteAsync(int id);
         Task<DeliveryChallan> GetAsync(int id);
         Task<(IEnumerable<DeliveryChallanViewModel> Challans, int TotalItems)>
-     GetChallansAsync(int page, int pageSize, int userId, string searchTerm = "", string role = "");
+     GetChallansAsync(int? page, int? pageSize, int userId, string searchTerm = "", string role = "");
         Task<bool> ExistsAsync(int id);
         Task<string> GenerateChallanNumberAsync();
 
