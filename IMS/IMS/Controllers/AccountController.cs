@@ -1,8 +1,9 @@
 ﻿using IMS.Models;
 using IMS.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using System.Security.Claims;
 
 namespace IMS.Controllers
@@ -38,10 +39,12 @@ namespace IMS.Controllers
 
                 // ✅ Create base claims
                 var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-        };
+                    {
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim("BranchName", user.BranchName ?? "")
+                    };
+
 
                 // ✅ Add role claims
                 foreach (var role in roles)

@@ -1,4 +1,5 @@
-﻿@{
+﻿@using IMS.ViewModels
+@* @{
     Layout = "_Layout";  // use main layout with sidebar + topbar
     ViewData["Title"] = "Dashboard";
 }
@@ -95,4 +96,67 @@
         }
 
     </style>
+}
+ *@
+
+@model DashboardViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container py-4">
+
+    <h2 class="text-primary mb-4">Welcome, @User.Identity.Name 👋</h2>
+
+    <div class="row g-4">
+        <!-- Total Challans Card -->
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 rounded-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-info">Total Challans</h5>
+                    <h2>@Model.TotalChallans</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="row g-4 mt-3">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <canvas id="challanChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('challanChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Last5Days)),
+                datasets: [{
+                    label: 'Challans Created',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChallansPerDay)),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, precision:0 }
+                }
+            }
+        });
+    </script>
 }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using IMS.Data;
+using IMS.Models;
 using IMS.Models.DTO;
+using IMS.Repositories;
 using IMS.Repositories.Interfaces;
 using IMS.Services;
 using IMS.ViewModels;
@@ -16,12 +18,15 @@ namespace IMS.Controllers
         private readonly IMapper _mapper;
         private readonly IDeliveryChallanRepository _deliveryChallanRepo;
         private readonly IChallanPdfService _challanPdf;
+        private readonly IUserRepository _userRepo;
 
-        public DeliveryChallanController(IMapper mapper, IDeliveryChallanRepository deliveryChallanRepo,IChallanPdfService challanPdfService)
+        public DeliveryChallanController(IMapper mapper, IDeliveryChallanRepository deliveryChallanRepo,
+            IChallanPdfService challanPdfService, IUserRepository userRepository)
         {
             _mapper = mapper;
             _deliveryChallanRepo = deliveryChallanRepo;
             _challanPdf = challanPdfService;
+            _userRepo = userRepository;
         }
 
         public async Task<IActionResult> Index(int? page = 1, int? pageSize = 10, string? searchTerm = "")
@@ -83,8 +88,19 @@ namespace IMS.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var userName = User.FindFirst(ClaimTypes.Name)?.Value;
 
+                if (string.IsNullOrEmpty(userId))
+                {
+                    // User not logged in or claim missing
+                    throw new Exception("User ID not found in claims.");
+                }
+
+                int uId = Convert.ToInt32(userId);
+
+                var user = _userRepo.GetUserByUserId(uId);
+
                 model.createdByName = userName;
                 model.createdBy = Convert.ToInt32(userId);
+                model.BranchName = user?.BranchName;
                 var challan = await _deliveryChallanRepo.CreateAsync(model);
 
                 // 2️⃣ Generate PDF (outside transaction)
@@ -158,6 +174,13 @@ namespace IMS.Controllers
 
             try
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                int uId = Convert.ToInt32(userId);
+
+                var user = _userRepo.GetUserByUserId(uId);
+
+                entity.BranchName = user?.BranchName;
+
                 // Let repo handle updating child items
                 await _deliveryChallanRepo.UpdateAsync(entity, model.Items);
 

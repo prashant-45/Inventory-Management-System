@@ -183,6 +183,7 @@ namespace IMS.Repositories
                 query = query.Where(x =>
                     x.c.ChallanNo.Contains(searchTerm) ||
                     x.c.ReceiverName.Contains(searchTerm) ||
+                    x.c.BranchName.Contains(searchTerm) ||
                     x.c.ReceiverMobile.Contains(searchTerm));
             }
 
@@ -213,7 +214,38 @@ namespace IMS.Repositories
             return (challans, totalItems);
         }
 
+        public async Task<IEnumerable<DeliveryChallanViewModel>> GetChallansForDashboardAsync(int userId, string role)
+        {
+            var query = from c in _context.DeliveryChallans
+                        join u in _context.Users on c.createdBy equals u.Id into userGroup
+                        from u in userGroup.DefaultIfEmpty()
+                        select new { c, CreatedByName = u.FullName };
 
+            if (!string.Equals(role, "admin", StringComparison.OrdinalIgnoreCase))
+                query = query.Where(x => x.c.createdBy == userId);
+
+            var challans = await query
+                .OrderByDescending(x => x.c.Date)
+                .Select(x => new DeliveryChallanViewModel
+                {
+                    Id = x.c.Id,
+                    ChallanNumber = x.c.ChallanNo,
+                    Date = x.c.Date,
+                    ReceiverName = x.c.ReceiverName,
+                    ReceiverPhone = x.c.ReceiverMobile,
+                    createdByName = x.CreatedByName,
+                    Items = x.c.Items.Select(i => new DeliveryItemViewModel
+                    {
+                        ModelNo = i.ModelNo,
+                        Particulars = i.Particular,
+                        Quantity = i.Quantity,
+                        Remarks = i.Remarks
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            return challans;
+        }
 
         public async Task<DeliveryChallan?> GetAsync(int id)
         {

@@ -113,7 +113,7 @@
                                         <input name="Items[@i].Particulars" class="form-control form-control-sm" placeholder="Item description" />
                                     </td>
                                     <td>
-                                        <input name="Items[@i].Quantity" type="number" min="1" class="form-control form-control-sm text-center" value="1" />
+                                        <input name="Items[@i].Quantity" type="number" min="1" class="form-control form-control-sm text-center" value="0" />
                                     </td>
                                     <td>
                                         <input name="Items[@i].Remarks" class="form-control form-control-sm" placeholder="Additional notes" />
@@ -216,7 +216,7 @@
                         <td class="ps-3 fw-semibold">${index + 1}</td>
                         <td><input name="Items[${index}].ModelNo" class="form-control form-control-sm" placeholder="Model number" /></td>
                         <td><input name="Items[${index}].Particulars" class="form-control form-control-sm" placeholder="Item description" /></td>
-                        <td><input name="Items[${index}].Quantity" type="number" min="1" value="1" class="form-control form-control-sm text-center" /></td>
+                        <td><input name="Items[${index}].Quantity" type="number" min="1" value="0" class="form-control form-control-sm text-center" /></td>
                         <td><input name="Items[${index}].Remarks" class="form-control form-control-sm" placeholder="Additional notes" /></td>
                         <td class="text-center pe-3">
                             <button type="button" class="btn btn-sm btn-outline-danger remove-row py-1 px-2">
@@ -273,10 +273,58 @@
                         return;
                     }
 
-                    $('button[type="submit"]')
-                        .prop('disabled', true)
-                        .html('<span class="spinner-border spinner-border-sm me-2"></span> Processing...');
-                });
+
+                        // ✅ Frontend validation for Items table
+                        let isValid = true;
+                        let errorMsg = "";
+                        const rows = $('#itemsTable tbody tr').not('.empty-state');
+
+                            if (rows.length === 0) {
+                                isValid = false;
+                                errorMsg = "Please add at least one item before submitting.";
+                                }else {
+                                        rows.each(function (index) {
+                                            const modelNo = $(this).find('input[name*=".ModelNo"]').val().trim();
+                                            const particulars = $(this).find('input[name*=".Particulars"]').val().trim();
+                                            const quantity = parseFloat($(this).find('input[name*=".Quantity"]').val()) || 0;
+
+                                            if (!modelNo || !particulars || quantity <= 0) {
+                                                isValid = false;
+                                                errorMsg = `Please fill all fields in Item #${index + 1}. (Model No, Description, and Quantity)`;
+                                                return false; // break out of loop
+                                            }
+                                        });
+                                    }
+                                        // If invalid, prevent submission and show message
+                                if (!isValid) {
+                                    e.preventDefault();
+
+                                    // ✅ Show user-friendly message (Bootstrap Toast or Toastr)
+                                    toastr.error(errorMsg, 'Validation Error', {
+                                        timeOut: 4000,
+                                        closeButton: true,
+                                        progressBar: true
+                                    });
+
+                                    // Highlight invalid rows for visual feedback
+                                    rows.each(function () {
+                                        const modelNo = $(this).find('input[name*=".ModelNo"]');
+                                        const particulars = $(this).find('input[name*=".Particulars"]');
+                                        const quantity = $(this).find('input[name*=".Quantity"]');
+
+                                        if (!modelNo.val().trim() || !particulars.val().trim() || quantity.val() <= 0) {
+                                            $(this).addClass('table-danger');
+                                        } else {
+                                            $(this).removeClass('table-danger');
+                                        }
+                                    });
+
+                                    return;
+                                }
+                        $('button[type="submit"]')
+                            .prop('disabled', true)
+                            .html('<span class="spinner-border spinner-border-sm me-2"></span> Processing...');
+                    });
 
                 form.on('input change', 'input, select, textarea', function () {
                     if ($('button[type="submit"]').prop('disabled') && form.valid()) {

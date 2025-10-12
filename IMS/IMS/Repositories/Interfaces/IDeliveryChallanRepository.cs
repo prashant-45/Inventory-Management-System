@@ -16,6 +16,7 @@ namespace IMS.Repositories.Interfaces
      GetChallansAsync(int? page, int? pageSize, int userId, string searchTerm = "", string role = "");
         Task<bool> ExistsAsync(int id);
         Task<string> GenerateChallanNumberAsync();
+        public Task<IEnumerable<DeliveryChallanViewModel>> GetChallansForDashboardAsync(int userId, string role);
 
     }
 }

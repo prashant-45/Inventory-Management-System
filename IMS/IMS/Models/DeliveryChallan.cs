@@ -29,7 +29,8 @@ namespace IMS.Models
         public int createdBy { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
-        public int updatedBy { get; set; }
+        public int? updatedBy { get; set; }
+        public string? BranchName { get; set; }
 
         // Navigation property → One challan has many items
         public List<DeliveryChallanItem> Items { get; set; } = new();
