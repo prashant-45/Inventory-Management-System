@@ -32,7 +32,14 @@ public class UserController : Controller
     {
         var model = new CreateUserViewModel
         {
-            Roles = await _userRepo.GetAllRolesAsync()
+            Roles = await _userRepo.GetAllRolesAsync(),
+            Branches = new List<SelectListItem>
+            {
+                new() { Value = "Rajasthan", Text = "Rajasthan" },
+                new() { Value = "Gujarat", Text = "Gujarat" },
+                new() { Value = "Maharashtra", Text = "Maharashtra" },
+                new() { Value = "Delhi", Text = "Delhi" }
+            }
         };
         return View(model);
     }
@@ -44,6 +51,15 @@ public class UserController : Controller
         if (!ModelState.IsValid)
         {
             model.Roles = await _userRepo.GetAllRolesAsync();
+
+            // ✅ repopulate static branches
+            model.Branches = new List<SelectListItem>
+            {
+                new() { Value = "Rajasthan", Text = "Rajasthan" },
+                new() { Value = "Gujarat", Text = "Gujarat" },
+                new() { Value = "Maharashtra", Text = "Maharashtra" },
+                new() { Value = "Delhi", Text = "Delhi" }
+            };
             return View(model);
         }
 
@@ -56,13 +72,14 @@ public class UserController : Controller
         return RedirectToAction("ManagePermissions", "Admin");
     }
 
-
+    [AllowAnonymous]
     [HttpGet]
     public IActionResult ForgotPassword()
     {
         return View();
     }
 
+    [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult ForgotPassword(ForgotPasswordViewModel model)

@@ -27,6 +27,12 @@ namespace IMS.ViewModels
         public int SelectedRoleId { get; set; }
 
         public List<SelectListItem>? Roles { get; set; }
+
+
+        // ✅ Add Branch selection
+        [Required(ErrorMessage = "Please select a branch")]
+        public string SelectedBranch { get; set; } = string.Empty;
+        public List<SelectListItem> Branches { get; set; } = new();
     }
 
 }

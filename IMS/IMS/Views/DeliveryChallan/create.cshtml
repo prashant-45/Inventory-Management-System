@@ -90,7 +90,7 @@
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="itemsTable">
+                    <table class="table table-hover align-middle mb-0 mobile-responsive" id="itemsTable">
                         <thead class="table-light">
                             <tr>
                                 <th class="ps-3" style="width:5%">#</th>
@@ -182,9 +182,10 @@
         (function () {
             'use strict';
 
-            // Set today's date as default
+            // ✅ Set today's date as default
             document.getElementById('Date').valueAsDate = new Date();
 
+            // ✅ Function to reindex table rows (simplified)
             function reindexRows() {
                 $('#itemsTable tbody tr').each(function (i) {
                     $(this).attr('data-index', i);
@@ -197,79 +198,87 @@
                         }
                     });
                 });
+                // Global utility handles mobile labels
+                if (window.responsiveTable) {
+                    window.responsiveTable.refreshTable($('#itemsTable'));
+                }
             }
 
+            // ✅ Add new row using global utility
             $('#addRow').on('click', function () {
+                // Remove empty state if exists
+                $('#itemsTable tbody .empty-state').remove();
+                $('#itemsTable tbody .text-center.py-5').closest('tr').remove();
+
                 var index = $('#itemsTable tbody tr').length;
-                var tr = `<tr data-index="${index}">
-                                                    <td class="ps-3 fw-semibold">${index + 1}</td>
-                                                    <td><input name="Items[${index}].ModelNo" class="form-control form-control-sm" placeholder="Model number" /></td>
-                                                    <td><input name="Items[${index}].Particulars" class="form-control form-control-sm" placeholder="Item description" /></td>
-                                                    <td><input name="Items[${index}].Quantity" type="number" min="1" value="1" class="form-control form-control-sm text-center" /></td>
-                                                    <td><input name="Items[${index}].Remarks" class="form-control form-control-sm" placeholder="Additional notes" /></td>
-                                                    <td class="text-center pe-3">
-                                                        <button type="button" class="btn btn-sm btn-outline-danger remove-row py-1 px-2">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </td>
-                                                  </tr>`;
-                $('#itemsTable tbody').append(tr);
+                var tr = `
+                    <tr data-index="${index}">
+                        <td class="ps-3 fw-semibold">${index + 1}</td>
+                        <td><input name="Items[${index}].ModelNo" class="form-control form-control-sm" placeholder="Model number" /></td>
+                        <td><input name="Items[${index}].Particulars" class="form-control form-control-sm" placeholder="Item description" /></td>
+                        <td><input name="Items[${index}].Quantity" type="number" min="1" value="1" class="form-control form-control-sm text-center" /></td>
+                        <td><input name="Items[${index}].Remarks" class="form-control form-control-sm" placeholder="Additional notes" /></td>
+                        <td class="text-center pe-3">
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-row py-1 px-2">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
 
-                // Remove empty state if it exists
-                $('#itemsTable').find('.text-center.py-5').remove();
-            });
-
-            $('#itemsTable').on('click', '.remove-row', function () {
-                $(this).closest('tr').remove();
-                reindexRows();
-
-                // Show empty state if no items
-                if ($('#itemsTable tbody tr').length === 0) {
-                    $('#itemsTable tbody').append(`
-                                                <tr>
-                                                    <td colspan="6" class="text-center py-5 text-muted">
-                                                        <i class="bi bi-inbox display-4 d-block mb-2"></i>
-                                                        <p class="mb-0">No items added yet. Click "Add Item" to get started.</p>
-                                                    </td>
-                                                </tr>
-                                            `);
+                // Use global utility
+                if (window.TableUtils) {
+                    window.TableUtils.addTableRow('#itemsTable', tr);
+                } else {
+                    $('#itemsTable tbody').append(tr);
                 }
+                reindexRows();
             });
 
-            // Initialize with one row if empty
-            if ($('#itemsTable tbody tr').length === 0) $('#addRow').click();
+            // ✅ Remove a row using global utility
+            $('#itemsTable').on('click', '.remove-row', function () {
+                const $row = $(this).closest('tr');
 
-            // Form validation
-            // var form = document.getElementById('challanForm');
-            // form.addEventListener('submit', function (event) {
-            //     if (!form.checkValidity()) {
-            //         event.preventDefault();
-            //         event.stopPropagation();
-            //     }
-            //     form.classList.add('was-validated');
-            // }, false);
+                // Use global utility if available
+                if (window.TableUtils) {
+                    window.TableUtils.removeTableRow($row);
+                } else {
+                    $row.remove();
 
-            // Add this to your Create.cshtml script section
+                    if ($('#itemsTable tbody tr').length === 0) {
+                        $('#itemsTable tbody').append(`
+                            <tr class="empty-state">
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                                    <p class="mb-0">No items added yet. Click "Add Item" to get started.</p>
+                                </td>
+                            </tr>
+                        `);
+                    }
+                }
+                reindexRows();
+            });
+
+            // ✅ Initialize with one row if empty
+            if ($('#itemsTable tbody tr').length === 0 ||
+                $('#itemsTable tbody .text-center.py-5').length > 0) {
+                $('#addRow').click();
+            }
+
+            // ✅ jQuery Validation and form submit handling
             $(document).ready(function () {
                 var form = $('#challanForm');
 
-                // Handle form submission
                 form.on('submit', function (e) {
-                    // Check validity using jQuery Validation
                     if (!form.valid()) {
-                        // Form is invalid, don't proceed with submission styling
                         return;
                     }
 
-                    // Form is valid, show processing state
                     $('button[type="submit"]')
                         .prop('disabled', true)
                         .html('<span class="spinner-border spinner-border-sm me-2"></span> Processing...');
                 });
 
-                // Reset button state if validation fails and user tries again
                 form.on('input change', 'input, select, textarea', function () {
-                    // If button is disabled but there are no validation errors, re-enable it
                     if ($('button[type="submit"]').prop('disabled') && form.valid()) {
                         $('button[type="submit"]')
                             .prop('disabled', false)
@@ -277,32 +286,25 @@
                     }
                 });
             });
-
         })();
 
-        // Show success modal if there's a success message
+        // ✅ Show Toastr success if message exists
         $(document).ready(function () {
-        // @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage as string))
-        // {
-        //     <text>
-        //             // Update modal message
-        //             $('#modalMessage').text('@ViewBag.SuccessMessage');
-
-        //         // Show the modal
-        //         var myModal = new bootstrap.Modal(document.getElementById('successModal'));
-        //         myModal.show();
-        //     </text>
-        // }
-                @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage as string))
-                    {
+            @if (!string.IsNullOrEmpty(ViewBag.SuccessMessage as string))
+            {
                     <text>
-                        toastr.success('@ViewBag.SuccessMessage', 'Success', { timeOut: 3000, closeButton: true, progressBar: true });
+                    toastr.success('@ViewBag.SuccessMessage', 'Success', {
+                        timeOut: 3000,
+                        closeButton: true,
+                        progressBar: true
+                    });
                     </text>
-                    }
-                });
+            }
+        });
     </script>
 
     <style>
+        /* Your existing styles remain the same */
         .card {
             border-radius: 0.75rem;
             overflow: hidden;

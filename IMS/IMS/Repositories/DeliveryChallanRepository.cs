@@ -164,41 +164,43 @@ namespace IMS.Repositories
         public async Task<(IEnumerable<DeliveryChallanViewModel> Challans, int TotalItems)>
      GetChallansAsync(int? page, int? pageSize, int userId, string searchTerm = "", string role = "")
         {
-            var query = _context.DeliveryChallans
-                .Include(c => c.Items)
-                .AsNoTracking()
-                .AsQueryable();
+            var query = from c in _context.DeliveryChallans
+                        join u in _context.Users
+                            on c.createdBy equals u.Id into userGroup
+                        from u in userGroup.DefaultIfEmpty() // Left join
+                        select new { c, CreatedByName = u.FullName };
 
             // ✅ Filter by role
             if (!string.Equals(role, "admin", StringComparison.OrdinalIgnoreCase))
             {
-                query = query.Where(c => c.createdBy == userId);
+                query = query.Where(x => x.c.createdBy == userId);
             }
 
             // 🔍 Search filter
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 searchTerm = searchTerm.Trim();
-                query = query.Where(c =>
-                    c.ChallanNo.Contains(searchTerm) ||
-                    c.ReceiverName.Contains(searchTerm) ||
-                    c.ReceiverMobile.Contains(searchTerm));
+                query = query.Where(x =>
+                    x.c.ChallanNo.Contains(searchTerm) ||
+                    x.c.ReceiverName.Contains(searchTerm) ||
+                    x.c.ReceiverMobile.Contains(searchTerm));
             }
 
             var totalItems = await query.CountAsync();
 
             var challans = await query
-                .OrderByDescending(c => c.Date)
+                .OrderByDescending(x => x.c.Date)
                 .Skip((int)((page - 1) * pageSize))
                 .Take((int)pageSize)
-                .Select(c => new DeliveryChallanViewModel
+                .Select(x => new DeliveryChallanViewModel
                 {
-                    Id = c.Id,
-                    ChallanNumber = c.ChallanNo,
-                    Date = c.Date,
-                    ReceiverName = c.ReceiverName,
-                    ReceiverPhone = c.ReceiverMobile,
-                    Items = c.Items.Select(i => new DeliveryItemViewModel
+                    Id = x.c.Id,
+                    ChallanNumber = x.c.ChallanNo,
+                    Date = x.c.Date,
+                    ReceiverName = x.c.ReceiverName,
+                    ReceiverPhone = x.c.ReceiverMobile,
+                    createdByName = x.CreatedByName,
+                    Items = x.c.Items.Select(i => new DeliveryItemViewModel
                     {
                         ModelNo = i.ModelNo,
                         Particulars = i.Particular,

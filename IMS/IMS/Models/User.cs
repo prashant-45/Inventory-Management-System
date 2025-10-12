@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IMS.Models
@@ -29,6 +30,7 @@ namespace IMS.Models
 
         public DateTime? UpdatedAt { get; set; } = null;
         public int? UpdatedBy { get; set; }
+        public string? BranchName { get; set; }
 
         public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();

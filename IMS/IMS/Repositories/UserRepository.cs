@@ -81,7 +81,8 @@ namespace IMS.Repositories
                 FullName = model.FullName,
                 MobileNumber = model.MobileNumber,
                 IsActive = true,
-                CreatedBy = createdBy
+                CreatedBy = createdBy,
+                BranchName = model.SelectedBranch,
                 // CreatedAt = DateTime.Now (optional)
             };
 
